@@ -8,7 +8,7 @@ This is the third project in a series:
 
 | Repo | Role |
 |---|---|
-| [HR-Policy-QA-Bot](https://github.com/robertciceroson/HR-Policy-QA-Bot) | **Build**: LangChain + FAISS + FastEmbed + Groq/Llama 3.3 70B RAG chatbot |
+| [HR-Policy-QA-Bot](https://github.com/robertciceroson/HR-Policy-QA-Bot) | **Build**: LangChain + FAISS + FastEmbed + Groq (gpt-oss-120b) RAG chatbot answers...|
 | [hr-policy-eval-harness](https://github.com/robertciceroson/hr-policy-eval-harness) | **Evaluate**: 73-case golden dataset; baseline scored 87.7% and exposed a 30% out-of-scope detection rate |
 | **hr-rag-architecture-benchmark** (this repo) | **Improve**: 10 controlled experiments to find which architecture fixes those failures, and at what cost |
 
