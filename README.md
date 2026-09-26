@@ -2,6 +2,8 @@
 
 *Which RAG design actually works for HR policy Q&A? Measured, not assumed.*
 
+![CI](https://github.com/robertciceroson/hr-rag-architecture-benchmark/actions/workflows/ci.yml/badge.svg)
+
 This is the third project in a series:
 
 | Repo | Role |
