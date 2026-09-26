@@ -6,6 +6,13 @@ Headline = **cross-validated accuracy** on the 73-item golden set (thresholds tu
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | E0 | Baseline: TF-IDF, section chunks | **61/73 (83.6%)** | ±1.3% | 87.7% | 40/45 | 3/10 | 8/8 | 10/10 | 95.6% | 0.978 | 50.0% | 0.5 ms | - |
 | E1 | BM25, section chunks | **57/73 (78.1%)** | ±1.6% | 83.6% | 38/45 | 3/10 | 6/8 | 10/10 | 95.6% | 0.978 | 33.3% | 0.1 ms | +3/-7 (p=0.34) |
+| E2 | Dense (bge-small), section chunks | **65/73 (89.0%)** | ±1.3% | 90.4% | 43/45 | 8/10 | 4/8 | 10/10 | 97.8% | 0.989 | 61.5% | 17.7 ms | +10/-6 (p=0.45) |
+| E3 | Hybrid RRF (BM25 + dense), section chunks | **64/73 (87.7%)** | ±1.4% | 91.8% | 43/45 | 5/10 | 6/8 | 10/10 | 97.8% | 0.989 | 62.5% | 10.9 ms | +7/-4 (p=0.55) |
+| E4 | Dense, fixed 120-word chunks | **61/73 (83.6%)** | ±1.9% | 86.3% | 42/45 | 3/10 | 6/8 | 10/10 | 93.3% | 0.967 | 42.9% | 10.3 ms | +7/-7 (p=1.00) |
+| E5 | Dense, sentence-window chunks | **65/73 (89.0%)** | ±1.3% | 90.4% | 43/45 | 8/10 | 4/8 | 10/10 | 97.8% | 0.989 | 61.5% | 9.8 ms | +10/-6 (p=0.45) |
+| E6 | Dense, section + document-title headers | **60/73 (82.2%)** | ±1.6% | 87.7% | 42/45 | 3/10 | 5/8 | 10/10 | 95.6% | 0.978 | 37.5% | 9.1 ms | +8/-9 (p=1.00) |
+| E7 | Hybrid + cross-encoder rerank | **69/73 (94.5%)** | ±0.5% | 95.9% | 42/45 | 9/10 | 8/8 | 10/10 | 100.0% | 1.000 | 75.0% | 1824.9 ms | +10/-2 (p=0.04) |
+| E10 | Dense + cross-encoder rerank | **69/73 (94.5%)** | ±0.5% | 95.9% | 42/45 | 9/10 | 8/8 | 10/10 | 100.0% | 1.000 | 75.0% | 1310.6 ms | +10/-2 (p=0.04) |
 
 **Baseline reproduction check:** E0 with the original hand-tuned parameters scores 64/73 (87.7%) (published: 64/73).
 
@@ -58,5 +65,140 @@ Chunks: 36 · index build 0.001 s · LLM calls this run: 0
 | HR-053 | out_of_scope | What is the company's severance pay policy? | answer | parental_leave_policy.md (2.7735) |
 | HR-056 | ambiguous | How much PTO do I have? | refuse_out_of_scope | pto_policy.md (2.6064) |
 | HR-059 | ambiguous | Am I eligible? | refuse_out_of_scope | remote_work_policy.md (2.1891) |
+
+*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+
+## E2: Dense (bge-small), section chunks
+
+*Hypothesis:* Embeddings fix both documented in-scope failures (synonym: 'calling in sick' ~ 'unplanned absence'; homonym: 'leave the company' vs 'parental leave') and raise OOS recall above 30%, because unrelated topics with shared words score lower semantically than lexically.
+
+Chunks: 36 · index build 32.463 s · LLM calls this run: 0
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-014 | in_scope | Can I access confidential company data from my personal phone? | answer | code_of_conduct.md (0.7262) |
+| HR-027 | in_scope | Do I need to disclose a side business I run on weekends? | refuse_out_of_scope | code_of_conduct.md (0.6594) |
+| HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.7274) |
+| HR-055 | out_of_scope | What's the policy on employee referral bonuses? | answer | code_of_conduct.md (0.688) |
+| HR-057 | ambiguous | Can I take leave next month? | refuse_out_of_scope | pto_policy.md (0.6734) |
+| HR-059 | ambiguous | Am I eligible? | refuse_out_of_scope | parental_leave_policy.md (0.6376) |
+| HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.622) |
+| HR-061 | ambiguous | What's the approval process? | refuse_out_of_scope | expense_reimbursement_policy.md (0.6811) |
+
+*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+
+## E3: Hybrid RRF (BM25 + dense), section chunks
+
+*Hypothesis:* Fusion keeps dense's semantic wins while recovering exact-term matches (dollar caps, day counts, form names). Ranking >= E2; gating ~= E2 because confidence still comes from the dense score.
+
+Chunks: 36 · index build 1.818 s · LLM calls this run: 0
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-005 | in_scope | Do I need manager approval before calling in sick? | answer | expense_reimbursement_policy.md (0.6829) |
+| HR-025 | in_scope | Who do I report a harassment concern to? | refuse_out_of_scope | code_of_conduct.md (0.6355) |
+| HR-046 | out_of_scope | What is the company's dress code policy? | answer | code_of_conduct.md (0.6545) |
+| HR-049 | out_of_scope | Does the company offer tuition reimbursement? | answer | remote_work_policy.md (0.6457) |
+| HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.7189) |
+| HR-053 | out_of_scope | What is the company's severance pay policy? | answer | parental_leave_policy.md (0.6517) |
+| HR-055 | out_of_scope | What's the policy on employee referral bonuses? | answer | expense_reimbursement_policy.md (0.6513) |
+| HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.622) |
+| HR-061 | ambiguous | What's the approval process? | refuse_out_of_scope | expense_reimbursement_policy.md (0.6401) |
+
+*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+
+## E4: Dense, fixed 120-word chunks
+
+*Hypothesis:* Ignoring document structure hurts: chunks straddle sections and lose their headers, so Hit@1 drops versus section chunking.
+
+Chunks: 19 · index build 2.349 s · LLM calls this run: 0
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-014 | in_scope | Can I access confidential company data from my personal phone? | refuse_out_of_scope | code_of_conduct.md (0.5779) |
+| HR-027 | in_scope | Do I need to disclose a side business I run on weekends? | refuse_out_of_scope | expense_reimbursement_policy.md (0.639) |
+| HR-029 | in_scope | Am I allowed to tell a client what my coworkers get paid? | answer | expense_reimbursement_policy.md (0.6367) |
+| HR-046 | out_of_scope | What is the company's dress code policy? | answer | code_of_conduct.md (0.6805) |
+| HR-047 | out_of_scope | How do I request a transfer to a different department? | answer | pto_policy.md (0.6284) |
+| HR-049 | out_of_scope | Does the company offer tuition reimbursement? | answer | expense_reimbursement_policy.md (0.6797) |
+| HR-050 | out_of_scope | What is the policy on bringing pets to the office? | answer | remote_work_policy.md (0.607) |
+| HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.761) |
+| HR-053 | out_of_scope | What is the company's severance pay policy? | answer | parental_leave_policy.md (0.6608) |
+| HR-055 | out_of_scope | What's the policy on employee referral bonuses? | answer | expense_reimbursement_policy.md (0.687) |
+| HR-059 | ambiguous | Am I eligible? | refuse_out_of_scope | benefits_enrollment_policy.md (0.6063) |
+| HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.6136) |
+
+*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+
+## E5: Dense, sentence-window chunks
+
+*Hypothesis:* Smaller chunks match precise facts better (higher Hit@1 on multi-tier questions) but produce noisier confidence scores for gating.
+
+Chunks: 36 · index build 1.562 s · LLM calls this run: 0
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-014 | in_scope | Can I access confidential company data from my personal phone? | answer | code_of_conduct.md (0.7262) |
+| HR-027 | in_scope | Do I need to disclose a side business I run on weekends? | refuse_out_of_scope | code_of_conduct.md (0.6594) |
+| HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.7274) |
+| HR-055 | out_of_scope | What's the policy on employee referral bonuses? | answer | code_of_conduct.md (0.688) |
+| HR-057 | ambiguous | Can I take leave next month? | refuse_out_of_scope | pto_policy.md (0.6734) |
+| HR-059 | ambiguous | Am I eligible? | refuse_out_of_scope | parental_leave_policy.md (0.6376) |
+| HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.622) |
+| HR-061 | ambiguous | What's the approval process? | refuse_out_of_scope | expense_reimbursement_policy.md (0.6811) |
+
+*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+
+## E6: Dense, section + document-title headers
+
+*Hypothesis:* Prepending the policy name to each section is the cheapest possible fix for cross-document confusion; expect gains on the ambiguity/homonym items.
+
+Chunks: 36 · index build 1.67 s · LLM calls this run: 0
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-014 | in_scope | Can I access confidential company data from my personal phone? | refuse_out_of_scope | code_of_conduct.md (0.674) |
+| HR-027 | in_scope | Do I need to disclose a side business I run on weekends? | refuse_out_of_scope | code_of_conduct.md (0.6384) |
+| HR-034 | in_scope | My spouse and I both work here — do we each get the full 12 weeks? | answer | benefits_enrollment_policy.md (0.6815) |
+| HR-046 | out_of_scope | What is the company's dress code policy? | answer | code_of_conduct.md (0.6653) |
+| HR-047 | out_of_scope | How do I request a transfer to a different department? | answer | pto_policy.md (0.6317) |
+| HR-049 | out_of_scope | Does the company offer tuition reimbursement? | answer | expense_reimbursement_policy.md (0.6802) |
+| HR-050 | out_of_scope | What is the policy on bringing pets to the office? | answer | remote_work_policy.md (0.634) |
+| HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.7637) |
+| HR-053 | out_of_scope | What is the company's severance pay policy? | answer | pto_policy.md (0.7081) |
+| HR-055 | out_of_scope | What's the policy on employee referral bonuses? | answer | benefits_enrollment_policy.md (0.6878) |
+| HR-057 | ambiguous | Can I take leave next month? | refuse_out_of_scope | parental_leave_policy.md (0.6763) |
+| HR-059 | ambiguous | Am I eligible? | refuse_out_of_scope | benefits_enrollment_policy.md (0.6255) |
+| HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.6355) |
+
+*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+
+## E7: Hybrid + cross-encoder rerank
+
+*Hypothesis:* A cross-encoder reads query and chunk together, so its score is a better relevance signal: best Hit@1 and the best non-LLM OOS gate.
+
+Chunks: 36 · index build 36.196 s · LLM calls this run: 0
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-027 | in_scope | Do I need to disclose a side business I run on weekends? | refuse_out_of_scope | code_of_conduct.md (-7.4312) |
+| HR-029 | in_scope | Am I allowed to tell a client what my coworkers get paid? | refuse_out_of_scope | code_of_conduct.md (-8.2293) |
+| HR-041 | in_scope | Can I change my benefits elections after having a baby? | refuse_out_of_scope | benefits_enrollment_policy.md (-3.0952) |
+| HR-049 | out_of_scope | Does the company offer tuition reimbursement? | answer | remote_work_policy.md (-2.0828) |
+
+*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+
+## E10: Dense + cross-encoder rerank
+
+*Hypothesis:* Ablation added after Phase 4: hybrid alone lost to dense (E3 < E2), so is the reranker doing all the work in E7? If E10 ~= E7, BM25 adds nothing and the simpler dense + rerank pipeline should ship.
+
+Chunks: 36 · index build 3.083 s · LLM calls this run: 0
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-027 | in_scope | Do I need to disclose a side business I run on weekends? | refuse_out_of_scope | code_of_conduct.md (-7.4312) |
+| HR-029 | in_scope | Am I allowed to tell a client what my coworkers get paid? | refuse_out_of_scope | code_of_conduct.md (-8.2293) |
+| HR-041 | in_scope | Can I change my benefits elections after having a baby? | refuse_out_of_scope | benefits_enrollment_policy.md (-3.0952) |
+| HR-049 | out_of_scope | Does the company offer tuition reimbursement? | answer | remote_work_policy.md (-2.0828) |
 
 *Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._

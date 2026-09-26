@@ -1,0 +1,758 @@
+{
+  "id": "E10",
+  "name": "Dense + cross-encoder rerank",
+  "hypothesis": "Ablation added after Phase 4: hybrid alone lost to dense (E3 < E2), so is the reranker doing all the work in E7? If E10 ~= E7, BM25 adds nothing and the simpler dense + rerank pipeline should ship.\n",
+  "config": {
+    "chunking": {
+      "strategy": "section"
+    },
+    "retriever": {
+      "type": "rerank",
+      "model": "Xenova/ms-marco-MiniLM-L-6-v2",
+      "base": {
+        "type": "dense",
+        "model": "BAAI/bge-small-en-v1.5"
+      }
+    },
+    "llm_scope_gate": false
+  },
+  "n_chunks": 36,
+  "index_build_s": 3.083,
+  "llm_calls": 0,
+  "retrieval": {
+    "doc_hit@1": 1.0,
+    "doc_hit@3": 1.0,
+    "doc_mrr": 1.0,
+    "latency_ms_mean": 1024.2415356213762,
+    "latency_ms_p95": 1310.6109999818727
+  },
+  "cv": {
+    "passed": 69,
+    "total": 73,
+    "accuracy": 0.9452054794520548,
+    "by_category": {
+      "in_scope": {
+        "passed": 42,
+        "total": 45,
+        "accuracy": 0.9333333333333333
+      },
+      "out_of_scope": {
+        "passed": 9,
+        "total": 10,
+        "accuracy": 0.9
+      },
+      "ambiguous": {
+        "passed": 8,
+        "total": 8,
+        "accuracy": 1.0
+      },
+      "adversarial": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0
+      }
+    },
+    "oos_detection": {
+      "precision": 0.75,
+      "recall": 0.9,
+      "f1": 0.8181818181818182,
+      "false_refusals_of_answerable": 3
+    },
+    "per_item": {
+      "HR-001": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-002": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-003": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-004": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-005": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-006": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-007": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-008": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-009": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-010": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-011": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-012": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-013": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-014": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-015": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-016": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-017": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-018": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-019": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-020": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-021": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-022": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-023": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-024": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-025": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-026": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-027": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-028": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-029": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-030": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-031": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-032": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-033": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-034": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-035": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-036": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-037": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-038": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-039": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-040": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-041": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-042": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-043": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-044": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-045": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-046": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-047": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-048": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-049": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-050": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-051": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-052": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-053": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-054": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-055": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-056": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-057": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-058": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-059": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-060": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-061": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-062": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-063": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-064": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-065": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-066": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-067": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-068": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-069": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-070": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-071": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-072": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-073": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      }
+    },
+    "fold_params": [
+      {
+        "oos_threshold": -3.5663845844757844,
+        "amb_margin": 1.9345359802246094,
+        "amb_min_conf": 9.027570431049053
+      },
+      {
+        "oos_threshold": -2.058081877537263,
+        "amb_margin": -Infinity,
+        "amb_min_conf": -9.722070693969727
+      },
+      {
+        "oos_threshold": -1.5746504893669717,
+        "amb_margin": -Infinity,
+        "amb_min_conf": -9.722070693969727
+      },
+      {
+        "oos_threshold": -3.8019589644211984,
+        "amb_margin": 2.294757121648544,
+        "amb_min_conf": 8.238357764024002
+      },
+      {
+        "oos_threshold": -1.7148668521489865,
+        "amb_margin": -Infinity,
+        "amb_min_conf": -9.722070693969727
+      }
+    ]
+  },
+  "cv_repeated": {
+    "mean": 0.9424657534246575,
+    "std": 0.005479452054794543,
+    "repeats": 10
+  },
+  "in_sample": {
+    "passed": 70,
+    "total": 73,
+    "accuracy": 0.958904109589041,
+    "by_category": {
+      "in_scope": {
+        "passed": 42,
+        "total": 45,
+        "accuracy": 0.9333333333333333
+      },
+      "out_of_scope": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0
+      },
+      "ambiguous": {
+        "passed": 8,
+        "total": 8,
+        "accuracy": 1.0
+      },
+      "adversarial": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0
+      }
+    },
+    "oos_detection": {
+      "precision": 0.7692307692307693,
+      "recall": 1.0,
+      "f1": 0.8695652173913044,
+      "false_refusals_of_answerable": 3
+    },
+    "per_item": {
+      "HR-001": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-002": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-003": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-004": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-005": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-006": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-007": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-008": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-009": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-010": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-011": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-012": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-013": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-014": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-015": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-016": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-017": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-018": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-019": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-020": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-021": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-022": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-023": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-024": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-025": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-026": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-027": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-028": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-029": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-030": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-031": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-032": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-033": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-034": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-035": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-036": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-037": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-038": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-039": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-040": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-041": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-042": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-043": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-044": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-045": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-046": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-047": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-048": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-049": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-050": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-051": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-052": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-053": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-054": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-055": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-056": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-057": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-058": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-059": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-060": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-061": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-062": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-063": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-064": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-065": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-066": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-067": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-068": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-069": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-070": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-071": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-072": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-073": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      }
+    },
+    "params": {
+      "oos_threshold": -1.7373332304832267,
+      "amb_margin": 2.2248633458064155,
+      "amb_min_conf": 0.735183835029602
+    }
+  },
+  "cv_failures": [
+    {
+      "id": "HR-027",
+      "case_type": "in_scope",
+      "question": "Do I need to disclose a side business I run on weekends?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "code_of_conduct.md",
+      "top_doc": "code_of_conduct.md",
+      "top_conf": -7.4312
+    },
+    {
+      "id": "HR-029",
+      "case_type": "in_scope",
+      "question": "Am I allowed to tell a client what my coworkers get paid?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "code_of_conduct.md",
+      "top_doc": "code_of_conduct.md",
+      "top_conf": -8.2293
+    },
+    {
+      "id": "HR-041",
+      "case_type": "in_scope",
+      "question": "Can I change my benefits elections after having a baby?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "benefits_enrollment_policy.md",
+      "top_doc": "benefits_enrollment_policy.md",
+      "top_conf": -3.0952
+    },
+    {
+      "id": "HR-049",
+      "case_type": "out_of_scope",
+      "question": "Does the company offer tuition reimbursement?",
+      "action": "answer",
+      "expected_doc": "none",
+      "top_doc": "remote_work_policy.md",
+      "top_conf": -2.0828
+    }
+  ]
+}

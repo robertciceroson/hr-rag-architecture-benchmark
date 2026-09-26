@@ -1,0 +1,794 @@
+{
+  "id": "E5",
+  "name": "Dense, sentence-window chunks",
+  "hypothesis": "Smaller chunks match precise facts better (higher Hit@1 on multi-tier questions) but produce noisier confidence scores for gating.\n",
+  "config": {
+    "chunking": {
+      "strategy": "sentence_window",
+      "params": {
+        "window": 3,
+        "stride": 2
+      }
+    },
+    "retriever": {
+      "type": "dense",
+      "model": "BAAI/bge-small-en-v1.5"
+    },
+    "llm_scope_gate": false
+  },
+  "n_chunks": 36,
+  "index_build_s": 1.562,
+  "llm_calls": 0,
+  "retrieval": {
+    "doc_hit@1": 0.9777777777777777,
+    "doc_hit@3": 1.0,
+    "doc_mrr": 0.9888888888888889,
+    "latency_ms_mean": 7.927224649218459,
+    "latency_ms_p95": 9.846939984709024
+  },
+  "cv": {
+    "passed": 65,
+    "total": 73,
+    "accuracy": 0.8904109589041096,
+    "by_category": {
+      "in_scope": {
+        "passed": 43,
+        "total": 45,
+        "accuracy": 0.9555555555555556
+      },
+      "out_of_scope": {
+        "passed": 8,
+        "total": 10,
+        "accuracy": 0.8
+      },
+      "ambiguous": {
+        "passed": 4,
+        "total": 8,
+        "accuracy": 0.5
+      },
+      "adversarial": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0
+      }
+    },
+    "oos_detection": {
+      "precision": 0.6153846153846154,
+      "recall": 0.8,
+      "f1": 0.6956521739130435,
+      "false_refusals_of_answerable": 5
+    },
+    "per_item": {
+      "HR-001": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-002": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-003": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-004": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-005": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-006": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-007": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-008": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-009": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-010": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-011": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-012": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-013": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-014": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-015": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-016": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-017": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-018": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-019": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-020": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-021": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-022": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-023": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-024": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-025": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-026": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-027": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-028": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-029": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-030": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-031": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-032": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-033": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-034": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-035": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-036": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-037": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-038": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-039": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-040": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-041": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-042": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-043": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-044": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-045": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-046": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-047": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-048": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-049": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-050": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-051": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-052": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-053": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-054": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-055": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-056": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-057": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-058": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-059": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-060": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-061": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-062": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-063": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-064": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-065": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-066": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-067": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-068": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-069": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-070": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-071": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-072": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-073": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      }
+    },
+    "fold_params": [
+      {
+        "oos_threshold": 0.6798655023941627,
+        "amb_margin": 0.0333788425494463,
+        "amb_min_conf": 0.8360121341852041
+      },
+      {
+        "oos_threshold": 0.6699754825005164,
+        "amb_margin": -Infinity,
+        "amb_min_conf": 0.7274367763445928
+      },
+      {
+        "oos_threshold": 0.6699754825005164,
+        "amb_margin": 0.022004127502441406,
+        "amb_min_conf": 0.8183451218482776
+      },
+      {
+        "oos_threshold": 0.6881062770501162,
+        "amb_margin": 0.0396447365100567,
+        "amb_min_conf": 0.8312934637069702
+      },
+      {
+        "oos_threshold": 0.680689391417381,
+        "amb_margin": 0.03270326975064399,
+        "amb_min_conf": 0.7696892894231356
+      }
+    ]
+  },
+  "cv_repeated": {
+    "mean": 0.8643835616438358,
+    "std": 0.01292326182473508,
+    "repeats": 10
+  },
+  "in_sample": {
+    "passed": 66,
+    "total": 73,
+    "accuracy": 0.9041095890410958,
+    "by_category": {
+      "in_scope": {
+        "passed": 43,
+        "total": 45,
+        "accuracy": 0.9555555555555556
+      },
+      "out_of_scope": {
+        "passed": 7,
+        "total": 10,
+        "accuracy": 0.7
+      },
+      "ambiguous": {
+        "passed": 6,
+        "total": 8,
+        "accuracy": 0.75
+      },
+      "adversarial": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0
+      }
+    },
+    "oos_detection": {
+      "precision": 0.7,
+      "recall": 0.7,
+      "f1": 0.7,
+      "false_refusals_of_answerable": 3
+    },
+    "per_item": {
+      "HR-001": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-002": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-003": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-004": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-005": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-006": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-007": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-008": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-009": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-010": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-011": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-012": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-013": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-014": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-015": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-016": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-017": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-018": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-019": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-020": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-021": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-022": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-023": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-024": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-025": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-026": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-027": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-028": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-029": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-030": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-031": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-032": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-033": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-034": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-035": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-036": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-037": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-038": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-039": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-040": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-041": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-042": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-043": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-044": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-045": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-046": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-047": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-048": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-049": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-050": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-051": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-052": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-053": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-054": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-055": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-056": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-057": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-058": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-059": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-060": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-061": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-062": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-063": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-064": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-065": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-066": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-067": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-068": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-069": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-070": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-071": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-072": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-073": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      }
+    },
+    "params": {
+      "oos_threshold": 0.6699754825005164,
+      "amb_margin": 0.03285339703926673,
+      "amb_min_conf": 0.7399703172536997
+    }
+  },
+  "cv_failures": [
+    {
+      "id": "HR-014",
+      "case_type": "in_scope",
+      "question": "Can I access confidential company data from my personal phone?",
+      "action": "answer",
+      "expected_doc": "remote_work_policy.md",
+      "top_doc": "code_of_conduct.md",
+      "top_conf": 0.7262
+    },
+    {
+      "id": "HR-027",
+      "case_type": "in_scope",
+      "question": "Do I need to disclose a side business I run on weekends?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "code_of_conduct.md",
+      "top_doc": "code_of_conduct.md",
+      "top_conf": 0.6594
+    },
+    {
+      "id": "HR-052",
+      "case_type": "out_of_scope",
+      "question": "What is the maternity leave policy for the UK office?",
+      "action": "answer",
+      "expected_doc": "none",
+      "top_doc": "parental_leave_policy.md",
+      "top_conf": 0.7274
+    },
+    {
+      "id": "HR-055",
+      "case_type": "out_of_scope",
+      "question": "What's the policy on employee referral bonuses?",
+      "action": "answer",
+      "expected_doc": "none",
+      "top_doc": "code_of_conduct.md",
+      "top_conf": 0.688
+    },
+    {
+      "id": "HR-057",
+      "case_type": "ambiguous",
+      "question": "Can I take leave next month?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "none",
+      "top_doc": "pto_policy.md",
+      "top_conf": 0.6734
+    },
+    {
+      "id": "HR-059",
+      "case_type": "ambiguous",
+      "question": "Am I eligible?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "none",
+      "top_doc": "parental_leave_policy.md",
+      "top_conf": 0.6376
+    },
+    {
+      "id": "HR-060",
+      "case_type": "ambiguous",
+      "question": "How do I enroll?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "benefits_enrollment_policy.md",
+      "top_doc": "benefits_enrollment_policy.md",
+      "top_conf": 0.622
+    },
+    {
+      "id": "HR-061",
+      "case_type": "ambiguous",
+      "question": "What's the approval process?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "none",
+      "top_doc": "expense_reimbursement_policy.md",
+      "top_conf": 0.6811
+    }
+  ]
+}
