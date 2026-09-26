@@ -1,0 +1,159 @@
+# Experiment matrix. One variable changes per experiment relative to its
+# comparison point ("compare_to"). Guardrail rules and the golden dataset
+# never change. See EXPERIMENT_PLAN.md for the reasoning behind each one.
+#
+# requires: python packages / env vars the experiment needs. run_experiments.py
+# skips (and reports) any experiment whose requirements are missing.
+
+experiments:
+
+  # ---------------- Phase 1: lexical retrieval (runs anywhere, no downloads)
+  - id: E0
+    name: "Baseline: TF-IDF, section chunks"
+    phase: 1
+    book_ref: "Control (original hr-policy-eval-harness)"
+    hypothesis: >
+      Reproduces the published 64/73 with the original hand-tuned params, and
+      shows how much of 87.7% survives honest cross-validated calibration.
+    chunking: {strategy: section}
+    retriever: {type: tfidf}
+    fixed_params: {oos_threshold: 0.10, amb_margin: 0.02, amb_min_conf: 0.20}
+    requires: []
+
+  - id: E1
+    name: "BM25, section chunks"
+    phase: 1
+    compare_to: E0
+    book_ref: "RAG > Workflow of a RAG system (p.113)"
+    hypothesis: >
+      Better term weighting improves ranking slightly, but BM25 scores are
+      unbounded and query-length dependent, so out-of-scope gating gets WORSE.
+    chunking: {strategy: section}
+    retriever: {type: bm25}
+    requires: [rank_bm25]
+
+  # ---------------- Phase 2: semantic retrieval (downloads a ~130MB model once)
+  - id: E2
+    name: "Dense (bge-small), section chunks"
+    phase: 2
+    compare_to: E0
+    book_ref: "RAG > What are vector databases? (p.107)"
+    hypothesis: >
+      Embeddings fix both documented in-scope failures (synonym: 'calling in
+      sick' ~ 'unplanned absence'; homonym: 'leave the company' vs 'parental
+      leave') and raise OOS recall above 30%, because unrelated topics with
+      shared words score lower semantically than lexically.
+    chunking: {strategy: section}
+    retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    requires: [fastembed]
+
+  - id: E3
+    name: "Hybrid RRF (BM25 + dense), section chunks"
+    phase: 2
+    compare_to: E2
+    book_ref: "RAG > 8 RAG architectures (p.126)"
+    hypothesis: >
+      Fusion keeps dense's semantic wins while recovering exact-term matches
+      (dollar caps, day counts, form names). Ranking >= E2; gating ~= E2
+      because confidence still comes from the dense score.
+    chunking: {strategy: section}
+    retriever:
+      type: hybrid_rrf
+      confidence_from: dense
+      components:
+        - {type: bm25}
+        - {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    requires: [rank_bm25, fastembed]
+
+  # ---------------- Phase 3: chunking (hold retriever fixed at dense;
+  # switch to the Phase 2 winner if that's E3)
+  - id: E4
+    name: "Dense, fixed 120-word chunks"
+    phase: 3
+    compare_to: E2
+    book_ref: "RAG > 5 chunking strategies (p.118)"
+    hypothesis: >
+      Ignoring document structure hurts: chunks straddle sections and lose
+      their headers, so Hit@1 drops versus section chunking.
+    chunking: {strategy: fixed, params: {size: 120, overlap: 30}}
+    retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    requires: [fastembed]
+
+  - id: E5
+    name: "Dense, sentence-window chunks"
+    phase: 3
+    compare_to: E2
+    book_ref: "RAG > 5 chunking strategies (p.118)"
+    hypothesis: >
+      Smaller chunks match precise facts better (higher Hit@1 on multi-tier
+      questions) but produce noisier confidence scores for gating.
+    chunking: {strategy: sentence_window, params: {window: 3, stride: 2}}
+    retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    requires: [fastembed]
+
+  - id: E6
+    name: "Dense, section + document-title headers"
+    phase: 3
+    compare_to: E2
+    book_ref: "Context Engineering (p.146)"
+    hypothesis: >
+      Prepending the policy name to each section is the cheapest possible fix
+      for cross-document confusion; expect gains on the ambiguity/homonym items.
+    chunking: {strategy: section_contextual}
+    retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    requires: [fastembed]
+
+  # ---------------- Phase 4: reranking
+  - id: E7
+    name: "Hybrid + cross-encoder rerank"
+    phase: 4
+    compare_to: E3
+    book_ref: "RAG > 8 RAG architectures (p.126)"
+    hypothesis: >
+      A cross-encoder reads query and chunk together, so its score is a
+      better relevance signal: best Hit@1 and the best non-LLM OOS gate.
+    chunking: {strategy: section}
+    retriever:
+      type: rerank
+      model: "Xenova/ms-marco-MiniLM-L-6-v2"
+      base:
+        type: hybrid_rrf
+        confidence_from: dense
+        components:
+          - {type: bm25}
+          - {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    requires: [rank_bm25, fastembed]
+
+  # ---------------- Phase 5: LLM-assisted (needs GROQ_API_KEY; ~75-150 calls, cached)
+  - id: E8
+    name: "HyDE (Llama 3.3 70B) + dense"
+    phase: 5
+    compare_to: E2
+    book_ref: "RAG > Traditional RAG vs HyDE (p.131)"
+    hypothesis: >
+      HyDE helps short or vague in-scope questions, but HURTS out-of-scope
+      detection: the LLM confidently invents a plausible 'dress code policy',
+      which then matches real sections better than the raw question did.
+    chunking: {strategy: section}
+    retriever: {type: hyde, blend_query: true, dense: {model: "BAAI/bge-small-en-v1.5"}}
+    requires: [fastembed, groq, GROQ_API_KEY]
+
+  - id: E9
+    name: "Hybrid + LLM scope gate"
+    phase: 5
+    compare_to: E3
+    book_ref: "RAG vs Agentic RAG (p.128); original harness recommendation"
+    hypothesis: >
+      Directly tests the original README's recommendation. An LLM that reads
+      the retrieved excerpts can tell 'tuition reimbursement' is not
+      'expense reimbursement', lifting OOS recall from 30% to 80%+ without
+      falsely refusing answerable questions.
+    chunking: {strategy: section}
+    retriever:
+      type: hybrid_rrf
+      confidence_from: dense
+      components:
+        - {type: bm25}
+        - {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    llm_scope_gate: true
+    requires: [rank_bm25, fastembed, groq, GROQ_API_KEY]
