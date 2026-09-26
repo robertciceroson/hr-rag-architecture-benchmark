@@ -40,23 +40,28 @@ design, hypotheses, and decision rules are in **[EXPERIMENT_PLAN.md](EXPERIMENT_
 - **Cross-validated headline.** Thresholds are tuned on 4/5 of the items and scored on the held-out 1/5. Tuning on the test set is what inflated the original 87.7%.
 - **Significance testing.** An exact McNemar test compares each experiment with the baseline on the same 73 items. With n = 73, a gain of one or two items is noise and gets reported as noise.
 
-## Findings so far
+## Findings
 
-Phases 1–4 complete (E0–E7, E10). Phase 5 (LLM-assisted: E8, E9, E11) pending.
+All 12 experiments complete (E0–E11). LLM experiments use `openai/gpt-oss-120b` on Groq.
 
-| | CV accuracy | vs honest baseline | Out-of-scope recall / precision | Latency p95 (CPU) |
+| | CV accuracy | vs honest baseline | Out-of-scope recall / precision | Cost per question |
 |---|---|---|---|---|
 | Baseline as published (tuned on test set) | 64/73 (87.7%) | — | 30% / — | <1 ms |
 | **Baseline, honest (cross-validated)** | **61/73 (83.6%)** | — | 30% / 50% | <1 ms |
-| Dense embeddings (E2) | 65/73 (89.0%) | +10/−6, p = 0.45 (n.s.) | 80% / 62% | 18 ms |
-| **Dense + cross-encoder rerank (E10)** | **69/73 (94.5%)** | **+10/−2, p = 0.04** | **90% / 75%** | 1.3 s |
+| Dense embeddings (E2) | 65/73 (89.0%) | +10/−6, p = 0.45 (n.s.) | 80% / 62% | ~20 ms |
+| Dense + cross-encoder rerank (E10) | 69/73 (94.5%) | +10/−2, p = 0.04 | 90% / 75% | ~1.3 s CPU, no API |
+| Dense + LLM scope gate (E9) | 70/73 (95.9%) | +11/−2, p = 0.02 | 90% / 90% | ~10 ms + 1 LLM call |
+| **Dense + rerank + LLM scope gate (E11)** | **72/73 (98.6%)** | **+12/−1, p = 0.003** | **100% / 91%** | ~1 s CPU + 1 LLM call |
 
-1. **The published 87.7% was optimistic.** Its threshold was tuned on the same 73 items it was scored on. Honest cross-validated calibration puts the baseline at 83.6%, and that is the number every experiment is judged against.
-2. **Reranking is the only change that passes the pre-registered decision rule.** A cross-encoder over dense retrieval reaches 94.5% (±0.5% across 10 CV repeats), finds the right policy for every answerable question, and triples out-of-scope detection. The price is about 1.3 s per question on CPU: fine for an HR helpdesk, too slow for autocomplete.
-3. **BM25 adds nothing once you rerank.** Hybrid + rerank (E7) and dense + rerank (E10) fail on exactly the same items, so the simpler pipeline wins. Caveat: the reranker sees 20 of only 36 chunks here, so first-stage retrieval would matter more on a large handbook.
-4. **Dense retrieval alone traded one failure for another.** It fixed both of the harness's documented retrieval misses and raised out-of-scope recall to 80%, but vague questions ("Am I eligible?") started getting refused as out-of-scope. Net gain not significant.
-5. **Two popular "improvements" hurt.** Hybrid fusion brought back a keyword-overlap miss (E3), and prepending document titles to chunks, often recommended as "contextual headers", dropped out-of-scope recall back to 30% (E6).
-6. **One experiment didn't really run.** Sentence-window chunking (E5) produced the same 36 chunks as section chunking because the policy sections are short; it's reported as inconclusive, not as "no effect."
+1. **The published 87.7% was optimistic.** Its threshold was tuned on the same 73 items it was scored on. Honest cross-validated calibration puts the baseline at 83.6%, and every experiment is judged against that.
+2. **Scoping, not ranking, was the real problem.** Dense retrieval already found the right policy for 44 of 45 answerable questions. What failed was deciding when a question is *not* covered. The two components that fixed it read the question and the text together: a cross-encoder reranker and an LLM scope check.
+3. **Best result: reranker + LLM gate (E11), 98.6%.** Every answerable question is answered from the right policy, and all 10 uncovered topics are refused, including "tuition reimbursement," which no similarity score could separate from "expense reimbursement." Calibration effectively handed scoping to the LLM and ranking to the reranker.
+4. **But the top three are statistically tied.** At n = 73, E9, E10, and E11 are not distinguishable from each other (E11 vs E10: p = 0.38). The choice between them is a cost and data-handling decision, not an accuracy one:
+   - **E11** for maximum accuracy, if sending policy excerpts *and employee questions* to an external LLM API is acceptable. HR questions can contain personal details.
+   - **E10** if data must stay in-house: no external API, 94.5%, about 1.3 s per question on CPU.
+   - **E9** for the lightest footprint: no reranker, fast retrieval, one small LLM call.
+5. **Two popular "improvements" hurt, and one prediction was wrong.** Hybrid BM25 fusion (E3) and document-title chunk headers (E6) both made scope detection worse. HyDE (E8) was predicted to hurt scope detection; instead it helped (precision 62% → 89%) and fixed ambiguity handling.
+6. **Limits:** 73 items and 10 out-of-scope cases, a 6-document synthetic corpus (the reranker sees 20 of 36 chunks, so "BM25 adds nothing" is a small-corpus result), one experiment that degenerated (E5), and LLM results specific to one model. Details in [EXPERIMENT_PLAN.md §7](EXPERIMENT_PLAN.md).
 
 Full table, per-item failures, and every verdict: [`results/RESULTS.md`](results/RESULTS.md).
 

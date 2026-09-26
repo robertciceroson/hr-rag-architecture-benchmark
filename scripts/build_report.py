@@ -33,8 +33,9 @@ def main():
         sys.exit("No runs found. Run scripts/run_experiments.py first.")
     order = sorted(runs, key=lambda k: int(k[1:]))
     with open(os.path.join(ROOT, "configs", "experiments.yaml"), encoding="utf-8") as f:
-        verdicts = {e["id"]: e.get("verdict", "").strip()
-                    for e in yaml.safe_load(f)["experiments"]}
+        cfg = yaml.safe_load(f)["experiments"]
+    verdicts = {e["id"]: e.get("verdict", "").strip() for e in cfg}
+    compare_to = {e["id"]: e.get("compare_to") for e in cfg}
     base = runs.get("E0")
 
     L = ["# Results\n",
@@ -43,25 +44,30 @@ def main():
          "In-sample = thresholds tuned on all 73 items (optimistic; comparable "
          "to the original 87.7%). One item = 1.4 points.\n",
          "| ID | Experiment | CV acc | ±sd (10x CV) | In-sample | In-scope | OOS | Ambig. | Adv. "
-         "| Doc Hit@1 | MRR | OOS precision | Latency p95 | vs E0 (p) |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+         "| Doc Hit@1 | MRR | OOS precision | Latency p95 | vs E0 (p) | vs compare_to (p) |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for k in order:
         r = runs[k]
         cv, bc = r["cv"], r["cv"]["by_category"]
         cat = lambda c: f"{bc[c]['passed']}/{bc[c]['total']}"  # noqa: E731
-        sig = "-"
-        if base and k != "E0":
+        def versus(other):
             ids = list(cv["per_item"])
-            t = mcnemar_exact([base["cv"]["per_item"][i]["passed"] for i in ids],
+            t = mcnemar_exact([runs[other]["cv"]["per_item"][i]["passed"] for i in ids],
                               [cv["per_item"][i]["passed"] for i in ids])
-            sig = f"+{t['experiment_only']}/-{t['baseline_only']} (p={t['p_value']:.2f})"
+            return f"+{t['experiment_only']}/-{t['baseline_only']} (p={t['p_value']:.2f})"
+        sig = versus("E0") if base and k != "E0" else "-"
+        ct = compare_to.get(k)
+        sig2 = f"{ct}: {versus(ct)}" if ct in runs and ct != "E0" else "-"
+        lat = f"{r['retrieval']['latency_ms_p95']:.1f} ms"
+        if r["config"].get("llm_scope_gate"):
+            lat += " + LLM call"
         L.append(
             f"| {k} | {r['name']} | **{cv['passed']}/{cv['total']} ({pct(cv['accuracy'])})** "
             f"| ±{r['cv_repeated']['std']:.1%} | {pct(r['in_sample']['accuracy'])} "
             f"| {cat('in_scope')} | {cat('out_of_scope')} | {cat('ambiguous')} "
             f"| {cat('adversarial')} | {pct(r['retrieval']['doc_hit@1'])} "
             f"| {r['retrieval']['doc_mrr']:.3f} | {pct(cv['oos_detection']['precision'])} "
-            f"| {r['retrieval']['latency_ms_p95']:.1f} ms | {sig} |")
+            f"| {lat} | {sig} | {sig2} |")
 
     if base and "fixed" in base:
         fx = base["fixed"]
@@ -73,7 +79,9 @@ def main():
           "baseline, with an exact McNemar p-value. Decision rule (EXPERIMENT_PLAN.md): a real "
           "improvement needs >= 3 items gained, p < 0.10, adversarial still 10/10, and OOS "
           "precision no worse than the baseline. Anything else is reported as no measurable "
-          "difference, however good the headline looks.", ""]
+          "difference, however good the headline looks. `vs compare_to` tests each experiment "
+          "against the one it was designed to improve on. Latency covers retrieval only; "
+          "\"+ LLM call\" marks experiments that also make one scope-gate API call per question.", ""]
 
     for k in order:
         r = runs[k]

@@ -14,7 +14,7 @@
   },
   "n_chunks": 36,
   "index_build_s": 1.509,
-  "llm_calls": 136,
+  "llm_calls": 63,
   "retrieval": {
     "doc_hit@1": 0.9777777777777777,
     "doc_hit@3": 1.0,
@@ -741,5 +741,7 @@
       "top_doc": "parental_leave_policy.md",
       "top_conf": 0.7274
     }
-  ]
+  ],
+  "llm_calls_note": "Corrected from the cumulative counter (136) recorded before the runner fix: 63 new API calls in this experiment.",
+  "llm_gate_calls_per_run": 63
 }

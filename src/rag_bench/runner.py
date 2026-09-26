@@ -28,6 +28,7 @@ def needs_llm(spec: dict) -> bool:
 def run_experiment(exp: Dict, llm=None, embedder=None, encoder=None,
                    write: bool = True, verbose: bool = True) -> Dict:
     dataset = load_dataset()
+    llm_calls_before = getattr(llm, "calls", 0) if llm else 0
     t0 = time.perf_counter()
     chunks = build_chunks(os.path.join(DATA, "policy_docs"), exp["chunking"]["strategy"],
                           **exp["chunking"].get("params", {}))
@@ -51,7 +52,13 @@ def run_experiment(exp: Dict, llm=None, embedder=None, encoder=None,
                   {"llm_scope_gate": exp.get("llm_scope_gate", False)},
         "n_chunks": len(chunks),
         "index_build_s": round(index_s, 3),
-        "llm_calls": getattr(llm, "calls", 0) if llm else 0,
+        # New (uncached) API calls made by THIS experiment. Latency below covers
+        # retrieval only (HyDE's LLM call is inside retrieval; the scope-gate
+        # call is not), so gated experiments also report how many questions
+        # needed a gate call.
+        "llm_calls": (getattr(llm, "calls", 0) - llm_calls_before) if llm else 0,
+        "llm_gate_calls_per_run": sum(1 for d in dataset if exp.get("llm_scope_gate")
+                                      and not is_injection(d["question"])),
         "retrieval": retrieval_quality(feats, dataset),
     }
 

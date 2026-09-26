@@ -18,7 +18,7 @@
   },
   "n_chunks": 36,
   "index_build_s": 2.02,
-  "llm_calls": 184,
+  "llm_calls": 48,
   "retrieval": {
     "doc_hit@1": 1.0,
     "doc_hit@3": 1.0,
@@ -727,5 +727,7 @@
       "top_doc": "parental_leave_policy.md",
       "top_conf": -1.6016
     }
-  ]
+  ],
+  "llm_calls_note": "Corrected from the cumulative counter (184) recorded before the runner fix: 48 new API calls in this experiment; 15 gate verdicts were cache hits shared with E9.",
+  "llm_gate_calls_per_run": 63
 }

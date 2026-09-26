@@ -2,24 +2,24 @@
 
 Headline = **cross-validated accuracy** on the 73-item golden set (thresholds tuned on 4/5 of the data, scored on the held-out 1/5). In-sample = thresholds tuned on all 73 items (optimistic; comparable to the original 87.7%). One item = 1.4 points.
 
-| ID | Experiment | CV acc | ±sd (10x CV) | In-sample | In-scope | OOS | Ambig. | Adv. | Doc Hit@1 | MRR | OOS precision | Latency p95 | vs E0 (p) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| E0 | Baseline: TF-IDF, section chunks | **61/73 (83.6%)** | ±1.3% | 87.7% | 40/45 | 3/10 | 8/8 | 10/10 | 95.6% | 0.978 | 50.0% | 0.5 ms | - |
-| E1 | BM25, section chunks | **57/73 (78.1%)** | ±1.6% | 83.6% | 38/45 | 3/10 | 6/8 | 10/10 | 95.6% | 0.978 | 33.3% | 0.1 ms | +3/-7 (p=0.34) |
-| E2 | Dense (bge-small), section chunks | **65/73 (89.0%)** | ±1.3% | 90.4% | 43/45 | 8/10 | 4/8 | 10/10 | 97.8% | 0.989 | 61.5% | 17.7 ms | +10/-6 (p=0.45) |
-| E3 | Hybrid RRF (BM25 + dense), section chunks | **64/73 (87.7%)** | ±1.4% | 91.8% | 43/45 | 5/10 | 6/8 | 10/10 | 97.8% | 0.989 | 62.5% | 10.9 ms | +7/-4 (p=0.55) |
-| E4 | Dense, fixed 120-word chunks | **61/73 (83.6%)** | ±1.9% | 86.3% | 42/45 | 3/10 | 6/8 | 10/10 | 93.3% | 0.967 | 42.9% | 10.3 ms | +7/-7 (p=1.00) |
-| E5 | Dense, sentence-window chunks | **65/73 (89.0%)** | ±1.3% | 90.4% | 43/45 | 8/10 | 4/8 | 10/10 | 97.8% | 0.989 | 61.5% | 9.8 ms | +10/-6 (p=0.45) |
-| E6 | Dense, section + document-title headers | **60/73 (82.2%)** | ±1.6% | 87.7% | 42/45 | 3/10 | 5/8 | 10/10 | 95.6% | 0.978 | 37.5% | 9.1 ms | +8/-9 (p=1.00) |
-| E7 | Hybrid + cross-encoder rerank | **69/73 (94.5%)** | ±0.5% | 95.9% | 42/45 | 9/10 | 8/8 | 10/10 | 100.0% | 1.000 | 75.0% | 1824.9 ms | +10/-2 (p=0.04) |
-| E8 | HyDE (LLM via Groq) + dense | **69/73 (94.5%)** | ±1.2% | 95.9% | 43/45 | 8/10 | 8/8 | 10/10 | 97.8% | 0.989 | 88.9% | 2972.7 ms | +11/-3 (p=0.06) |
-| E9 | Dense + LLM scope gate | **70/73 (95.9%)** | ±0.9% | 95.9% | 43/45 | 9/10 | 8/8 | 10/10 | 97.8% | 0.989 | 90.0% | 9.5 ms | +11/-2 (p=0.02) |
-| E10 | Dense + cross-encoder rerank | **69/73 (94.5%)** | ±0.5% | 95.9% | 42/45 | 9/10 | 8/8 | 10/10 | 100.0% | 1.000 | 75.0% | 1310.6 ms | +10/-2 (p=0.04) |
-| E11 | Dense + rerank + LLM scope gate | **72/73 (98.6%)** | ±1.3% | 98.6% | 45/45 | 10/10 | 7/8 | 10/10 | 100.0% | 1.000 | 90.9% | 997.2 ms | +12/-1 (p=0.00) |
+| ID | Experiment | CV acc | ±sd (10x CV) | In-sample | In-scope | OOS | Ambig. | Adv. | Doc Hit@1 | MRR | OOS precision | Latency p95 | vs E0 (p) | vs compare_to (p) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| E0 | Baseline: TF-IDF, section chunks | **61/73 (83.6%)** | ±1.3% | 87.7% | 40/45 | 3/10 | 8/8 | 10/10 | 95.6% | 0.978 | 50.0% | 0.5 ms | - | - |
+| E1 | BM25, section chunks | **57/73 (78.1%)** | ±1.6% | 83.6% | 38/45 | 3/10 | 6/8 | 10/10 | 95.6% | 0.978 | 33.3% | 0.1 ms | +3/-7 (p=0.34) | - |
+| E2 | Dense (bge-small), section chunks | **65/73 (89.0%)** | ±1.3% | 90.4% | 43/45 | 8/10 | 4/8 | 10/10 | 97.8% | 0.989 | 61.5% | 17.7 ms | +10/-6 (p=0.45) | - |
+| E3 | Hybrid RRF (BM25 + dense), section chunks | **64/73 (87.7%)** | ±1.4% | 91.8% | 43/45 | 5/10 | 6/8 | 10/10 | 97.8% | 0.989 | 62.5% | 10.9 ms | +7/-4 (p=0.55) | E2: +4/-5 (p=1.00) |
+| E4 | Dense, fixed 120-word chunks | **61/73 (83.6%)** | ±1.9% | 86.3% | 42/45 | 3/10 | 6/8 | 10/10 | 93.3% | 0.967 | 42.9% | 10.3 ms | +7/-7 (p=1.00) | E2: +2/-6 (p=0.29) |
+| E5 | Dense, sentence-window chunks | **65/73 (89.0%)** | ±1.3% | 90.4% | 43/45 | 8/10 | 4/8 | 10/10 | 97.8% | 0.989 | 61.5% | 9.8 ms | +10/-6 (p=0.45) | E2: +0/-0 (p=1.00) |
+| E6 | Dense, section + document-title headers | **60/73 (82.2%)** | ±1.6% | 87.7% | 42/45 | 3/10 | 5/8 | 10/10 | 95.6% | 0.978 | 37.5% | 9.1 ms | +8/-9 (p=1.00) | E2: +1/-6 (p=0.12) |
+| E7 | Hybrid + cross-encoder rerank | **69/73 (94.5%)** | ±0.5% | 95.9% | 42/45 | 9/10 | 8/8 | 10/10 | 100.0% | 1.000 | 75.0% | 1824.9 ms | +10/-2 (p=0.04) | E3: +8/-3 (p=0.23) |
+| E8 | HyDE (LLM via Groq) + dense | **69/73 (94.5%)** | ±1.2% | 95.9% | 43/45 | 8/10 | 8/8 | 10/10 | 97.8% | 0.989 | 88.9% | 2972.7 ms | +11/-3 (p=0.06) | E2: +5/-1 (p=0.22) |
+| E9 | Dense + LLM scope gate | **70/73 (95.9%)** | ±0.9% | 95.9% | 43/45 | 9/10 | 8/8 | 10/10 | 97.8% | 0.989 | 90.0% | 9.5 ms + LLM call | +11/-2 (p=0.02) | E2: +6/-1 (p=0.12) |
+| E10 | Dense + cross-encoder rerank | **69/73 (94.5%)** | ±0.5% | 95.9% | 42/45 | 9/10 | 8/8 | 10/10 | 100.0% | 1.000 | 75.0% | 1310.6 ms | +10/-2 (p=0.04) | E7: +0/-0 (p=1.00) |
+| E11 | Dense + rerank + LLM scope gate | **72/73 (98.6%)** | ±1.3% | 98.6% | 45/45 | 10/10 | 7/8 | 10/10 | 100.0% | 1.000 | 90.9% | 997.2 ms + LLM call | +12/-1 (p=0.00) | E10: +4/-1 (p=0.38) |
 
 **Baseline reproduction check:** E0 with the original hand-tuned parameters scores 64/73 (87.7%) (published: 64/73).
 
-`vs E0` = items this experiment fixed / items it broke relative to the baseline, with an exact McNemar p-value. Decision rule (EXPERIMENT_PLAN.md): a real improvement needs >= 3 items gained, p < 0.10, adversarial still 10/10, and OOS precision no worse than the baseline. Anything else is reported as no measurable difference, however good the headline looks.
+`vs E0` = items this experiment fixed / items it broke relative to the baseline, with an exact McNemar p-value. Decision rule (EXPERIMENT_PLAN.md): a real improvement needs >= 3 items gained, p < 0.10, adversarial still 10/10, and OOS precision no worse than the baseline. Anything else is reported as no measurable difference, however good the headline looks. `vs compare_to` tests each experiment against the one it was designed to improve on. Latency covers retrieval only; "+ LLM call" marks experiments that also make one scope-gate API call per question.
 
 ## E0: Baseline: TF-IDF, section chunks
 
@@ -204,13 +204,13 @@ Chunks: 36 · index build 2.382 s · LLM calls this run: 73
 | HR-047 | out_of_scope | How do I request a transfer to a different department? | answer | pto_policy.md (0.7621) |
 | HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.8192) |
 
-**Verdict:** _Pending: add a `verdict:` to this experiment in configs/experiments.yaml._
+**Verdict:** Hypothesis NOT supported, in an instructive way. HyDE did not hurt out-of-scope detection: recall held at 80% and precision rose to 89%, and it restored ambiguity handling to 8/8, because a vague question becomes a full hypothetical policy passage that matches real sections well. 69/73 (94.5%), +11/-3 vs E0 (p=0.06, passes the p<0.10 rule), but +5/-1 vs E2 is not significant (p=0.22). Cost: one LLM call inside retrieval, about 3 s p95.
 
 ## E9: Dense + LLM scope gate
 
 *Hypothesis:* Directly tests the original README's recommendation. An LLM that reads the retrieved excerpts can tell 'tuition reimbursement' is not 'expense reimbursement', lifting OOS recall to 90%+ without falsely refusing answerable questions. (Rebased from hybrid to dense after Phase 2: E3 hybrid lost to E2.)
 
-Chunks: 36 · index build 1.509 s · LLM calls this run: 136
+Chunks: 36 · index build 1.509 s · LLM calls this run: 63
 
 | ID | Type | Question | Got | Top doc (conf) |
 |---|---|---|---|---|
@@ -218,7 +218,7 @@ Chunks: 36 · index build 1.509 s · LLM calls this run: 136
 | HR-035 | in_scope | How much notice do I need to give for a planned parental leave? | refuse_out_of_scope | parental_leave_policy.md (0.7951) |
 | HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.7274) |
 
-**Verdict:** _Pending: add a `verdict:` to this experiment in configs/experiments.yaml._
+**Verdict:** Supported. The LLM gate reads the retrieved excerpts and rejects look-alike topics that similarity scores cannot: 70/73 (95.9%), OOS recall 90% at 90% precision, ambiguous 8/8, +11/-2 vs E0 (p=0.02). Versus plain dense (E2): +6/-1 (p=0.125). Retrieval stays fast (under 20 ms) but every non-adversarial question adds one LLM API call, and the policy excerpts are sent to a third-party API.
 
 ## E10: Dense + cross-encoder rerank
 
@@ -239,10 +239,10 @@ Chunks: 36 · index build 3.083 s · LLM calls this run: 0
 
 *Hypothesis:* Added after Phase 4. An LLM gate can only add refusals, so it belongs on top of the best retriever (E10), not plain dense. With the LLM catching out-of-scope questions, calibration can loosen the reranker's threshold: expect it to recover some of E10's 3 false refusals and to catch 'tuition reimbursement', at the cost of one LLM call per question.
 
-Chunks: 36 · index build 2.02 s · LLM calls this run: 184
+Chunks: 36 · index build 2.02 s · LLM calls this run: 48
 
 | ID | Type | Question | Got | Top doc (conf) |
 |---|---|---|---|---|
 | HR-057 | ambiguous | Can I take leave next month? | refuse_out_of_scope | parental_leave_policy.md (-1.6016) |
 
-**Verdict:** _Pending: add a `verdict:` to this experiment in configs/experiments.yaml._
+**Verdict:** Supported, and the best result: 72/73 (98.6%, +/-1.3%), in-scope 45/45, out-of-scope 10/10 including 'tuition reimbursement', adversarial 10/10, +12/-1 vs E0 (p=0.003). Mechanism: calibration pushed the reranker's scope threshold to effectively zero, so the reranker does ranking and the LLM does scoping. That recovered all 3 of E10's false refusals. The one miss is 'Can I take leave next month?' (ambiguous, refused as out-of-scope). Caveat: E11 vs E10 (+4/-1, p=0.38) and vs E9 (+3/-1, p=0.63) are NOT statistically distinguishable at n=73; E9, E10 and E11 form a top tier, and the choice between them is about cost and data handling, not accuracy.

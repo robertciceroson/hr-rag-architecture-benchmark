@@ -1,6 +1,6 @@
 # Experiment Plan: Which RAG Architecture Actually Works for HR Policy Q&A?
 
-**Owner:** Robert Son · **Status:** Phases 1–4 complete (E0–E7, E10); Phase 5 ready to run
+**Owner:** Robert Son · **Status:** Complete: all 12 experiments run (E0–E11), 2026-09-26
 **Companion repos:** [HR-Policy-QA-Bot](https://github.com/robertciceroson/HR-Policy-QA-Bot) (the product) ·
 [hr-policy-eval-harness](https://github.com/robertciceroson/hr-policy-eval-harness) (the golden dataset and baseline)
 
@@ -117,7 +117,7 @@ exploratory, not confirmatory.
 and generation-quality scoring with an LLM-backed generator plus G-Eval
 (p.332). Add these only after E0–E9 are written up.
 
-## 5. Results so far (Phases 1–4, run 2026-09-26)
+## 5. Results (all phases, run 2026-09-26)
 
 | ID | Experiment | CV accuracy | vs E0 | OOS recall / precision | Verdict |
 |---|---|---|---|---|---|
@@ -129,7 +129,10 @@ and generation-quality scoring with an LLM-backed generator plus G-Eval
 | E5 | Dense, sentence windows | 65/73 (89.0%) | +10/−6, p=0.45 | 80% / 62% | Inconclusive (same chunks as E2) |
 | E6 | Dense, title headers | 60/73 (82.2%) | +8/−9, p=1.00 | 30% / 38% | Not supported: backfired |
 | E7 | Hybrid + rerank | **69/73 (94.5%)** | **+10/−2, p=0.04** | **90% / 75%** | **Supported; passes decision rule** |
-| E10 | Dense + rerank | **69/73 (94.5%)** | **+10/−2, p=0.04** | **90% / 75%** | **Same as E7; simpler → recommended** |
+| E10 | Dense + rerank | **69/73 (94.5%)** | **+10/−2, p=0.04** | **90% / 75%** | **Same as E7; simpler. Best no-API option** |
+| E8 | HyDE + dense | 69/73 (94.5%) | +11/−3, p=0.06 | 80% / 89% | Prediction wrong: helped scope precision |
+| E9 | Dense + LLM gate | **70/73 (95.9%)** | **+11/−2, p=0.02** | **90% / 90%** | **Supported** |
+| E11 | Dense + rerank + LLM gate | **72/73 (98.6%)** | **+12/−1, p=0.003** | **100% / 91%** | **Best; tied with E9/E10 at n=73** |
 
 Full verdicts live in `configs/experiments.yaml` and render into `results/RESULTS.md`.
 

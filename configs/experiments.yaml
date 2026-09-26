@@ -215,6 +215,15 @@ experiments:
     chunking: {strategy: section}
     retriever: {type: hyde, blend_query: true, dense: {model: "BAAI/bge-small-en-v1.5"}}
     requires: [fastembed, groq, GROQ_API_KEY]
+    verdict: >
+      Hypothesis NOT supported, in an instructive way. HyDE did not hurt
+      out-of-scope detection: recall held at 80% and precision rose to
+      89%, and it restored ambiguity handling to 8/8, because a vague
+      question becomes a full hypothetical policy passage that matches
+      real sections well. 69/73 (94.5%), +11/-3 vs E0 (p=0.06, passes the
+      p<0.10 rule), but +5/-1 vs E2 is not significant (p=0.22). Cost: one
+      LLM call inside retrieval, about 3 s p95.
+
 
   - id: E9
     name: "Dense + LLM scope gate"
@@ -231,6 +240,14 @@ experiments:
     retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
     llm_scope_gate: true
     requires: [fastembed, groq, GROQ_API_KEY]
+    verdict: >
+      Supported. The LLM gate reads the retrieved excerpts and rejects
+      look-alike topics that similarity scores cannot: 70/73 (95.9%), OOS
+      recall 90% at 90% precision, ambiguous 8/8, +11/-2 vs E0 (p=0.02).
+      Versus plain dense (E2): +6/-1 (p=0.125). Retrieval stays fast (under
+      20 ms) but every non-adversarial question adds one LLM API call, and
+      the policy excerpts are sent to a third-party API.
+
 
   - id: E11
     name: "Dense + rerank + LLM scope gate"
@@ -250,3 +267,15 @@ experiments:
       base: {type: dense, model: "BAAI/bge-small-en-v1.5"}
     llm_scope_gate: true
     requires: [fastembed, groq, GROQ_API_KEY]
+    verdict: >
+      Supported, and the best result: 72/73 (98.6%, +/-1.3%), in-scope
+      45/45, out-of-scope 10/10 including 'tuition reimbursement',
+      adversarial 10/10, +12/-1 vs E0 (p=0.003). Mechanism: calibration
+      pushed the reranker's scope threshold to effectively zero, so the
+      reranker does ranking and the LLM does scoping. That recovered all 3
+      of E10's false refusals. The one miss is 'Can I take leave next
+      month?' (ambiguous, refused as out-of-scope). Caveat: E11 vs E10
+      (+4/-1, p=0.38) and vs E9 (+3/-1, p=0.63) are NOT statistically
+      distinguishable at n=73; E9, E10 and E11 form a top tier, and the
+      choice between them is about cost and data handling, not accuracy.
+
