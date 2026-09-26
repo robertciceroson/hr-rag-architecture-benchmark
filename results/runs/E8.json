@@ -1,0 +1,764 @@
+{
+  "id": "E8",
+  "name": "HyDE (LLM via Groq) + dense",
+  "hypothesis": "HyDE helps short or vague in-scope questions, but HURTS out-of-scope detection: the LLM confidently invents a plausible 'dress code policy', which then matches real sections better than the raw question did.\n",
+  "config": {
+    "chunking": {
+      "strategy": "section"
+    },
+    "retriever": {
+      "type": "hyde",
+      "blend_query": true,
+      "dense": {
+        "model": "BAAI/bge-small-en-v1.5"
+      }
+    },
+    "llm_scope_gate": false
+  },
+  "n_chunks": 36,
+  "index_build_s": 2.382,
+  "llm_calls": 73,
+  "retrieval": {
+    "doc_hit@1": 0.9777777777777777,
+    "doc_hit@3": 1.0,
+    "doc_mrr": 0.9888888888888889,
+    "latency_ms_mean": 1891.2297780832837,
+    "latency_ms_p95": 2972.745920019224
+  },
+  "cv": {
+    "passed": 69,
+    "total": 73,
+    "accuracy": 0.9452054794520548,
+    "by_category": {
+      "in_scope": {
+        "passed": 43,
+        "total": 45,
+        "accuracy": 0.9555555555555556
+      },
+      "out_of_scope": {
+        "passed": 8,
+        "total": 10,
+        "accuracy": 0.8
+      },
+      "ambiguous": {
+        "passed": 8,
+        "total": 8,
+        "accuracy": 1.0
+      },
+      "adversarial": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0
+      }
+    },
+    "oos_detection": {
+      "precision": 0.8888888888888888,
+      "recall": 0.8,
+      "f1": 0.8421052631578948,
+      "false_refusals_of_answerable": 1
+    },
+    "per_item": {
+      "HR-001": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-002": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-003": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-004": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-005": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-006": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-007": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-008": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-009": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-010": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-011": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-012": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-013": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-014": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-015": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-016": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-017": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-018": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-019": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-020": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-021": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-022": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-023": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-024": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-025": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-026": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-027": {
+        "passed": false,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-028": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-029": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-030": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-031": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-032": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-033": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-034": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-035": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-036": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-037": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-038": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-039": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-040": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-041": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-042": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-043": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-044": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-045": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-046": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-047": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-048": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-049": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-050": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-051": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-052": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-053": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-054": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-055": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-056": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-057": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-058": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-059": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-060": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-061": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-062": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-063": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-064": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-065": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-066": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-067": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-068": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-069": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-070": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-071": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-072": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-073": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      }
+    },
+    "fold_params": [
+      {
+        "oos_threshold": 0.7689666152000427,
+        "amb_margin": -Infinity,
+        "amb_min_conf": 0.6024200916290283
+      },
+      {
+        "oos_threshold": 0.7318748220419272,
+        "amb_margin": 0.057760122494819835,
+        "amb_min_conf": 0.8617428571749957
+      },
+      {
+        "oos_threshold": 0.7357070430731162,
+        "amb_margin": 0.04176214108100304,
+        "amb_min_conf": 0.848392156454233
+      },
+      {
+        "oos_threshold": 0.7378990405645126,
+        "amb_margin": 0.05116992424695919,
+        "amb_min_conf": 0.9457980562479068
+      },
+      {
+        "oos_threshold": 0.7334812803146167,
+        "amb_margin": 0.05588010029915051,
+        "amb_min_conf": 0.8608771379177387
+      }
+    ]
+  },
+  "cv_repeated": {
+    "mean": 0.9342465753424657,
+    "std": 0.011942188886412825,
+    "repeats": 10
+  },
+  "in_sample": {
+    "passed": 70,
+    "total": 73,
+    "accuracy": 0.958904109589041,
+    "by_category": {
+      "in_scope": {
+        "passed": 44,
+        "total": 45,
+        "accuracy": 0.9777777777777777
+      },
+      "out_of_scope": {
+        "passed": 8,
+        "total": 10,
+        "accuracy": 0.8
+      },
+      "ambiguous": {
+        "passed": 8,
+        "total": 8,
+        "accuracy": 1.0
+      },
+      "adversarial": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0
+      }
+    },
+    "oos_detection": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.888888888888889,
+      "false_refusals_of_answerable": 0
+    },
+    "per_item": {
+      "HR-001": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-002": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-003": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-004": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-005": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-006": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-007": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-008": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-009": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-010": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-011": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-012": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-013": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-014": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-015": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-016": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-017": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-018": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-019": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-020": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-021": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-022": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-023": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-024": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-025": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-026": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-027": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-028": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-029": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-030": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-031": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-032": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-033": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-034": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-035": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-036": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-037": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-038": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-039": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-040": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-041": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-042": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-043": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-044": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-045": {
+        "passed": true,
+        "action": "answer"
+      },
+      "HR-046": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-047": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-048": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-049": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-050": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-051": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-052": {
+        "passed": false,
+        "action": "answer"
+      },
+      "HR-053": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-054": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-055": {
+        "passed": true,
+        "action": "refuse_out_of_scope"
+      },
+      "HR-056": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-057": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-058": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-059": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-060": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-061": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-062": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-063": {
+        "passed": true,
+        "action": "clarify"
+      },
+      "HR-064": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-065": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-066": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-067": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-068": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-069": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-070": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-071": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-072": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      },
+      "HR-073": {
+        "passed": true,
+        "action": "refuse_adversarial"
+      }
+    },
+    "params": {
+      "oos_threshold": 0.7463329464961321,
+      "amb_margin": 0.0484922681099329,
+      "amb_min_conf": Infinity
+    }
+  },
+  "cv_failures": [
+    {
+      "id": "HR-014",
+      "case_type": "in_scope",
+      "question": "Can I access confidential company data from my personal phone?",
+      "action": "answer",
+      "expected_doc": "remote_work_policy.md",
+      "top_doc": "code_of_conduct.md",
+      "top_conf": 0.783
+    },
+    {
+      "id": "HR-027",
+      "case_type": "in_scope",
+      "question": "Do I need to disclose a side business I run on weekends?",
+      "action": "refuse_out_of_scope",
+      "expected_doc": "code_of_conduct.md",
+      "top_doc": "code_of_conduct.md",
+      "top_conf": 0.7471
+    },
+    {
+      "id": "HR-047",
+      "case_type": "out_of_scope",
+      "question": "How do I request a transfer to a different department?",
+      "action": "answer",
+      "expected_doc": "none",
+      "top_doc": "pto_policy.md",
+      "top_conf": 0.7621
+    },
+    {
+      "id": "HR-052",
+      "case_type": "out_of_scope",
+      "question": "What is the maternity leave policy for the UK office?",
+      "action": "answer",
+      "expected_doc": "none",
+      "top_doc": "parental_leave_policy.md",
+      "top_conf": 0.8192
+    }
+  ],
+  "hyde_samples": {
+    "How many PTO days do full-time employees accrue per year?": "**Paid Time Off (PTO) Accrual for Full\u2011Time Employees**  \nFull\u2011time employees accrue PTO at a rate of 1.25 days per month of continuous service, resulting in a total of 15 days of PTO per calendar year. Accrual begins on the first day of employment and is prorated for any partial months of service. Unused PTO may be carried over to the following year up to a maximum of 5 days, provided the employee remains in active status. Additional PTO may be granted at the discretion of management in accordance with applicable collective bargaining agreements or special company programs.",
+    "Can I carry over unused PTO into next year?": "**Paid Time Off (PTO) Carryover Policy**  \nEmployees may carry over a maximum of **5\u202fdays (40\u202fhours)** of unused PTO into the following calendar year, provided the balance does not exceed the employee\u2019s annual accrual rate. Any accrued PTO in excess of the 5\u2011day limit will be forfeited on\u202fDecember\u202f31, unless a written waiver is approved by the HR Director in accordance with applicable state law. Carryover PTO must be used by **June\u202f30** of the subsequent year; any remaining balance after that date will be forfeited. This policy applies to all regular full\u2011time and part\u2011time employees unless otherwise specified in a collective bargaining agreement or individual employment contract.",
+    "How far in advance do I need to request 2 days of PTO?": "**Paid Time Off (PTO) Request Procedure**  \nEmployees must submit a written request for any PTO of two consecutive days or longer at least **ten (10) business days** prior to the first day of the requested leave. Requests submitted with less than ten business days\u2019 notice will be considered only in cases of emergency or unforeseen circumstances and may be denied at the discretion of the employee\u2019s manager. All PTO requests must be entered into the company\u2019s time\u2011off management system and approved by the employee\u2019s direct supervisor before the leave can be taken.",
+    "How far in advance do I need to request 5 consecutive days of PTO?": "**Paid Time Off (PTO) Request Procedure \u2013 Extended Leave**  \nEmployees must submit a written request for any consecutive PTO period of five (5) business days or more at least **four (4) weeks** prior to the first day of the requested leave. The request must be entered into the HRIS system and approved by the employee\u2019s direct supervisor and the department\u2019s HR representative. Failure to meet the four\u2011week notice requirement may result in the request being denied or placed on a wait\u2011list, subject to operational needs. Exceptions for unforeseen circumstances will be considered on a case\u2011by\u2011case basis in accordance with the company\u2019s emergency leave policy.",
+    "Do I need manager approval before calling in sick?": "**Sick\u2011Leave Notification and Approval Policy**\n\nEmployees must notify their immediate supervisor of an unscheduled absence due to illness as soon as practicable, but no later than the start of the scheduled workday. The supervisor\u2019s acknowledgment of the notification constitutes the required approval for the sick leave; no additional managerial sign\u2011off is needed. If the employee is unable to reach their supervisor directly, they may contact the designated department\u2011wide on\u2011call manager or the HR hotline, after which the supervisor will be informed promptly. All sick\u2011leave requests must be documented in the company\u2019s time\u2011keeping system within 24\u202fhours of the employee\u2019s return."
+  }
+}

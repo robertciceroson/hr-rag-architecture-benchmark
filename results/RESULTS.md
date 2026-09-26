@@ -12,7 +12,10 @@ Headline = **cross-validated accuracy** on the 73-item golden set (thresholds tu
 | E5 | Dense, sentence-window chunks | **65/73 (89.0%)** | ±1.3% | 90.4% | 43/45 | 8/10 | 4/8 | 10/10 | 97.8% | 0.989 | 61.5% | 9.8 ms | +10/-6 (p=0.45) |
 | E6 | Dense, section + document-title headers | **60/73 (82.2%)** | ±1.6% | 87.7% | 42/45 | 3/10 | 5/8 | 10/10 | 95.6% | 0.978 | 37.5% | 9.1 ms | +8/-9 (p=1.00) |
 | E7 | Hybrid + cross-encoder rerank | **69/73 (94.5%)** | ±0.5% | 95.9% | 42/45 | 9/10 | 8/8 | 10/10 | 100.0% | 1.000 | 75.0% | 1824.9 ms | +10/-2 (p=0.04) |
+| E8 | HyDE (LLM via Groq) + dense | **69/73 (94.5%)** | ±1.2% | 95.9% | 43/45 | 8/10 | 8/8 | 10/10 | 97.8% | 0.989 | 88.9% | 2972.7 ms | +11/-3 (p=0.06) |
+| E9 | Dense + LLM scope gate | **70/73 (95.9%)** | ±0.9% | 95.9% | 43/45 | 9/10 | 8/8 | 10/10 | 97.8% | 0.989 | 90.0% | 9.5 ms | +11/-2 (p=0.02) |
 | E10 | Dense + cross-encoder rerank | **69/73 (94.5%)** | ±0.5% | 95.9% | 42/45 | 9/10 | 8/8 | 10/10 | 100.0% | 1.000 | 75.0% | 1310.6 ms | +10/-2 (p=0.04) |
+| E11 | Dense + rerank + LLM scope gate | **72/73 (98.6%)** | ±1.3% | 98.6% | 45/45 | 10/10 | 7/8 | 10/10 | 100.0% | 1.000 | 90.9% | 997.2 ms | +12/-1 (p=0.00) |
 
 **Baseline reproduction check:** E0 with the original hand-tuned parameters scores 64/73 (87.7%) (published: 64/73).
 
@@ -188,6 +191,35 @@ Chunks: 36 · index build 36.196 s · LLM calls this run: 0
 
 **Verdict:** Supported, and passes the decision rule: 69/73 (94.5%, +/-0.5%), +10/-2 vs E0 (p=0.04), Hit@1 100%, OOS recall 90% at 75% precision, ambiguous 8/8, adversarial 10/10. Cost: about 1.8 s p95 latency on CPU, versus under 20 ms without reranking.
 
+## E8: HyDE (LLM via Groq) + dense
+
+*Hypothesis:* HyDE helps short or vague in-scope questions, but HURTS out-of-scope detection: the LLM confidently invents a plausible 'dress code policy', which then matches real sections better than the raw question did.
+
+Chunks: 36 · index build 2.382 s · LLM calls this run: 73
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-014 | in_scope | Can I access confidential company data from my personal phone? | answer | code_of_conduct.md (0.783) |
+| HR-027 | in_scope | Do I need to disclose a side business I run on weekends? | refuse_out_of_scope | code_of_conduct.md (0.7471) |
+| HR-047 | out_of_scope | How do I request a transfer to a different department? | answer | pto_policy.md (0.7621) |
+| HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.8192) |
+
+**Verdict:** _Pending: add a `verdict:` to this experiment in configs/experiments.yaml._
+
+## E9: Dense + LLM scope gate
+
+*Hypothesis:* Directly tests the original README's recommendation. An LLM that reads the retrieved excerpts can tell 'tuition reimbursement' is not 'expense reimbursement', lifting OOS recall to 90%+ without falsely refusing answerable questions. (Rebased from hybrid to dense after Phase 2: E3 hybrid lost to E2.)
+
+Chunks: 36 · index build 1.509 s · LLM calls this run: 136
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-014 | in_scope | Can I access confidential company data from my personal phone? | answer | code_of_conduct.md (0.7262) |
+| HR-035 | in_scope | How much notice do I need to give for a planned parental leave? | refuse_out_of_scope | parental_leave_policy.md (0.7951) |
+| HR-052 | out_of_scope | What is the maternity leave policy for the UK office? | answer | parental_leave_policy.md (0.7274) |
+
+**Verdict:** _Pending: add a `verdict:` to this experiment in configs/experiments.yaml._
+
 ## E10: Dense + cross-encoder rerank
 
 *Hypothesis:* Ablation added after Phase 4: hybrid alone lost to dense (E3 < E2), so is the reranker doing all the work in E7? If E10 ~= E7, BM25 adds nothing and the simpler dense + rerank pipeline should ship.
@@ -202,3 +234,15 @@ Chunks: 36 · index build 3.083 s · LLM calls this run: 0
 | HR-049 | out_of_scope | Does the company offer tuition reimbursement? | answer | remote_work_policy.md (-2.0828) |
 
 **Verdict:** Identical to E7 on every item, and faster (1.3 s vs 1.8 s p95): the cross-encoder does all the work and BM25 adds nothing. Caveat: the reranker re-scores the top 20 of only 36 chunks, so first-stage retrieval barely matters at this corpus size; on a large handbook it would. Recommended architecture so far. Remaining failures: 3 answerable questions refused (side business, sharing coworker pay, benefits change after a baby) and 1 out-of-scope question answered (tuition reimbursement).
+
+## E11: Dense + rerank + LLM scope gate
+
+*Hypothesis:* Added after Phase 4. An LLM gate can only add refusals, so it belongs on top of the best retriever (E10), not plain dense. With the LLM catching out-of-scope questions, calibration can loosen the reranker's threshold: expect it to recover some of E10's 3 false refusals and to catch 'tuition reimbursement', at the cost of one LLM call per question.
+
+Chunks: 36 · index build 2.02 s · LLM calls this run: 184
+
+| ID | Type | Question | Got | Top doc (conf) |
+|---|---|---|---|---|
+| HR-057 | ambiguous | Can I take leave next month? | refuse_out_of_scope | parental_leave_policy.md (-1.6016) |
+
+**Verdict:** _Pending: add a `verdict:` to this experiment in configs/experiments.yaml._
