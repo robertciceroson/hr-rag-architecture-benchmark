@@ -92,3 +92,53 @@ def test_cv_never_sees_held_out_item(monkeypatch):
     assert set().union(*held_out) == all_ids          # every item held out once
     assert sum(len(h) for h in held_out) == len(all_ids)
     assert r["cv"]["total"] == 73
+
+
+# ---------------------------------------------------------------- LLM client ---
+
+class _FakeResp:
+    def __init__(self, text, finish="stop"):
+        msg = type("M", (), {"content": text})()
+        self.choices = [type("C", (), {"message": msg, "finish_reason": finish})()]
+
+
+class _FakeClient:
+    def __init__(self, text):
+        self.text, self.kwargs = text, None
+        self.chat = type("Chat", (), {})()
+        self.chat.completions = self
+
+    def create(self, **kwargs):
+        self.kwargs = kwargs
+        return _FakeResp(self.text, "length" if not self.text else "stop")
+
+
+def test_reasoning_model_gets_token_room(tmp_path):
+    from rag_bench.llm import CachedLLM
+    client = _FakeClient("IN_SCOPE")
+    llm = CachedLLM(str(tmp_path / "c.json"), model="openai/gpt-oss-120b", client=client)
+    assert llm.complete("q", max_tokens=5) == "IN_SCOPE"
+    assert client.kwargs["max_tokens"] >= 1024
+    assert client.kwargs["extra_body"] == {"reasoning_effort": "low"}
+
+
+def test_empty_answer_raises_and_is_not_cached(tmp_path):
+    from rag_bench.llm import CachedLLM
+    llm = CachedLLM(str(tmp_path / "c.json"), model="openai/gpt-oss-120b",
+                    client=_FakeClient(""))
+    with pytest.raises(RuntimeError, match="empty answer"):
+        llm.complete("q", max_tokens=5)
+    assert not (tmp_path / "c.json").exists()
+
+
+def test_scope_verdict_parsing_is_strict():
+    from rag_bench.gates import llm_scope_check
+
+    class L:
+        def __init__(self, out): self.out = out
+        def complete(self, *a, **k): return self.out
+
+    assert llm_scope_check(L("OUT_OF_SCOPE"), "q", []) is True
+    assert llm_scope_check(L("in scope"), "q", []) is False
+    with pytest.raises(ValueError):
+        llm_scope_check(L("Sure! Happy to help."), "q", [])

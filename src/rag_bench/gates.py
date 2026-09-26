@@ -117,4 +117,10 @@ def llm_scope_check(llm, query: str, hits: List[Hit], n: int = 3,
         for h in hits[:n])
     verdict = llm.complete(SCOPE_PROMPT.format(q=query, excerpts=excerpts),
                            system=SCOPE_SYSTEM, max_tokens=5)
-    return "OUT" in verdict.upper()
+    v = verdict.upper().replace(" ", "_")
+    # Check OUT first: "OUT_OF_SCOPE" never contains "IN_SCOPE", but be explicit.
+    if "OUT_OF_SCOPE" in v:
+        return True
+    if "IN_SCOPE" in v:
+        return False
+    raise ValueError(f"Unparseable scope verdict for {query!r}: {verdict!r}")

@@ -102,7 +102,7 @@ finding: record it honestly in `results/RESULTS.md`.
 | **E5** | Dense, sentence-window chunks | p.118 | Better on precise facts, noisier gating |
 | **E6** | Dense, doc title prepended to each section | p.146 | Cheapest fix for cross-document confusion |
 | **E7** | Hybrid + cross-encoder rerank | p.126 | Best Hit@1 and best non-LLM scope gate |
-| **E8** | HyDE (Llama 3.3 70B) + dense | p.131 | Helps vague questions, **hurts** OOS: the LLM invents a plausible "dress code policy" that then matches real text |
+| **E8** | HyDE (LLM) + dense | p.131 | Helps vague questions, **hurts** OOS: the LLM invents a plausible "dress code policy" that then matches real text |
 | **E9** | Dense + LLM scope gate | p.128 | Lifts OOS recall to 80%+ with no false refusals: tests the harness's own recommendation |
 | **E10** | Dense + cross-encoder rerank | p.126 | *Added after Phase 4 (ablation):* if E10 ≈ E7, BM25 adds nothing |
 | **E11** | Dense + rerank + LLM scope gate | p.128 | *Added after Phase 4:* the gate lets calibration loosen the reranker threshold, recovering false refusals and catching "tuition reimbursement" |
@@ -142,7 +142,7 @@ Full verdicts live in `configs/experiments.yaml` and render into `results/RESULT
 | 2. Semantic | E2, E3 | your PC (downloads ~130 MB model once) | 1 hr | $0 |
 | 3. Chunking | E4, E5, E6 | your PC | 1 hr | $0 |
 | 4. Reranking | E7 | your PC (~90 MB model) | 30 min | $0 |
-| 5. LLM-assisted | E8, E9 | your PC + `GROQ_API_KEY` | 1 hr | $0 on Groq free tier (~150 calls, cached) |
+| 5. LLM-assisted | E8, E9, E11 | your PC + `GROQ_API_KEY` | 1 hr | $0 on Groq free tier (~290 calls, cached) |
 | 6. Write-up | verdicts in RESULTS.md, README findings, LinkedIn post | — | 2–3 hrs | $0 |
 
 About one weekend in total. After each phase: `python scripts/build_report.py`,
@@ -161,6 +161,7 @@ comparison runs on the best retriever.
 - **Document-level scoring.** A pass means the right *document* ranked first. It doesn't prove the right *section* was found or that an LLM would phrase the answer correctly (see the stretch goal).
 - **Degenerate experiment.** E5's sentence windows reproduced the section chunks exactly (36 = 36), so it tested nothing; it is reported as inconclusive.
 - **Reranker candidate depth vs. corpus size.** The reranker re-scores 20 of 36 chunks, so "BM25 adds nothing" (E7 = E10) is a small-corpus result.
+- **LLM substitution.** Groq retired Llama 3.3 70B (the production bot's model) before Phase 5 ran, so Phase 5 uses `openai/gpt-oss-120b`, a reasoning model run at low reasoning effort. LLM results are specific to that model.
 - **LLM nondeterminism.** Temperature is 0 and every completion is cached and committed, so E8 and E9 reproduce exactly from the cache.
 
 ## 8. Deliverables

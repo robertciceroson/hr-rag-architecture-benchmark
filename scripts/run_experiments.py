@@ -27,7 +27,9 @@ def load_dotenv():
         for line in open(path, encoding="utf-8"):
             if "=" in line and not line.strip().startswith("#"):
                 k, v = line.strip().split("=", 1)
-                os.environ.setdefault(k, v)
+                v = v.strip().strip('"').strip("'")
+                if v:  # blank values in .env (e.g. GROQ_MODEL=) mean "use the default"
+                    os.environ.setdefault(k.strip(), v)
 
 
 def missing_requirements(reqs):
@@ -70,6 +72,7 @@ def main():
             continue
         if needs_llm(exp) and llm is None:
             llm = CachedLLM(os.path.join(ROOT, "results", "llm_cache.json"))
+            print(f"LLM: {llm.model} (set GROQ_MODEL in .env to change)")
         run_experiment(exp, llm=llm if needs_llm(exp) else None)
 
 
