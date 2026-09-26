@@ -124,6 +124,22 @@ experiments:
           - {type: dense, model: "BAAI/bge-small-en-v1.5"}
     requires: [rank_bm25, fastembed]
 
+  - id: E10
+    name: "Dense + cross-encoder rerank"
+    phase: 4
+    compare_to: E7
+    book_ref: "RAG > 8 RAG architectures (p.126)"
+    hypothesis: >
+      Ablation added after Phase 4: hybrid alone lost to dense (E3 < E2), so
+      is the reranker doing all the work in E7? If E10 ~= E7, BM25 adds
+      nothing and the simpler dense + rerank pipeline should ship.
+    chunking: {strategy: section}
+    retriever:
+      type: rerank
+      model: "Xenova/ms-marco-MiniLM-L-6-v2"
+      base: {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    requires: [fastembed]
+
   # ---------------- Phase 5: LLM-assisted (needs GROQ_API_KEY; ~75-150 calls, cached)
   - id: E8
     name: "HyDE (Llama 3.3 70B) + dense"
@@ -139,21 +155,17 @@ experiments:
     requires: [fastembed, groq, GROQ_API_KEY]
 
   - id: E9
-    name: "Hybrid + LLM scope gate"
+    name: "Dense + LLM scope gate"
     phase: 5
-    compare_to: E3
+    compare_to: E2
     book_ref: "RAG vs Agentic RAG (p.128); original harness recommendation"
     hypothesis: >
       Directly tests the original README's recommendation. An LLM that reads
       the retrieved excerpts can tell 'tuition reimbursement' is not
-      'expense reimbursement', lifting OOS recall from 30% to 80%+ without
-      falsely refusing answerable questions.
+      'expense reimbursement', lifting OOS recall to 90%+ without falsely
+      refusing answerable questions. (Rebased from hybrid to dense after
+      Phase 2: E3 hybrid lost to E2.)
     chunking: {strategy: section}
-    retriever:
-      type: hybrid_rrf
-      confidence_from: dense
-      components:
-        - {type: bm25}
-        - {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
     llm_scope_gate: true
-    requires: [rank_bm25, fastembed, groq, GROQ_API_KEY]
+    requires: [fastembed, groq, GROQ_API_KEY]
