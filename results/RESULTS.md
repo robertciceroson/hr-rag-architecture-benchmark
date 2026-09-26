@@ -16,7 +16,7 @@ Headline = **cross-validated accuracy** on the 73-item golden set (thresholds tu
 
 **Baseline reproduction check:** E0 with the original hand-tuned parameters scores 64/73 (87.7%) (published: 64/73).
 
-`vs E0` = items this experiment fixed / items it broke relative to the baseline, with an exact McNemar p-value. With 73 items, treat p > 0.05 as "not distinguishable from the baseline", however good the headline looks.
+`vs E0` = items this experiment fixed / items it broke relative to the baseline, with an exact McNemar p-value. Decision rule (EXPERIMENT_PLAN.md): a real improvement needs >= 3 items gained, p < 0.10, adversarial still 10/10, and OOS precision no worse than the baseline. Anything else is reported as no measurable difference, however good the headline looks.
 
 ## E0: Baseline: TF-IDF, section chunks
 
@@ -39,7 +39,7 @@ Chunks: 36 · index build 0.004 s · LLM calls this run: 0
 | HR-054 | out_of_scope | How do I reset my company email password? | answer | remote_work_policy.md (0.2187) |
 | HR-055 | out_of_scope | What's the policy on employee referral bonuses? | answer | parental_leave_policy.md (0.1011) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Reproduced exactly: 64/73 with the original hand-tuned thresholds. Under cross-validated calibration the honest baseline is 61/73 (83.6%, +/-1.3%), so about 3 points of the published 87.7% came from tuning the threshold on the same items it was scored on.
 
 ## E1: BM25, section chunks
 
@@ -66,7 +66,7 @@ Chunks: 36 · index build 0.001 s · LLM calls this run: 0
 | HR-056 | ambiguous | How much PTO do I have? | refuse_out_of_scope | pto_policy.md (2.6064) |
 | HR-059 | ambiguous | Am I eligible? | refuse_out_of_scope | remote_work_policy.md (2.1891) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Partly supported. Ranking was identical to TF-IDF (Hit@1 95.6%) and gating was worse (2 in-scope and 2 ambiguous items lost; OOS precision 33%), but +3/-7 vs E0 is not significant (p=0.34), so this is reported as no measurable difference.
 
 ## E2: Dense (bge-small), section chunks
 
@@ -85,7 +85,7 @@ Chunks: 36 · index build 32.463 s · LLM calls this run: 0
 | HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.622) |
 | HR-061 | ambiguous | What's the approval process? | refuse_out_of_scope | expense_reimbursement_policy.md (0.6811) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Mixed; does not pass the decision rule (+10/-6 vs E0, p=0.45). Fixed both documented retrieval misses ('calling in sick', 'leave the company') and raised OOS recall from 30% to 80%, but ambiguous handling fell from 8/8 to 4/8: short, vague questions ('Am I eligible?') score low on dense similarity and are refused as out-of- scope before the ambiguity check runs. It traded one failure type for another.
 
 ## E3: Hybrid RRF (BM25 + dense), section chunks
 
@@ -105,7 +105,7 @@ Chunks: 36 · index build 1.818 s · LLM calls this run: 0
 | HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.622) |
 | HR-061 | ambiguous | What's the approval process? | refuse_out_of_scope | expense_reimbursement_policy.md (0.6401) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Not supported. Ranking matched E2, but OOS recall fell to 50% and the 'calling in sick' lexical miss came back: fusing BM25 in reintroduces the keyword overlap that dense retrieval had filtered out. Not significant vs E0 (p=0.55).
 
 ## E4: Dense, fixed 120-word chunks
 
@@ -128,7 +128,7 @@ Chunks: 19 · index build 2.349 s · LLM calls this run: 0
 | HR-059 | ambiguous | Am I eligible? | refuse_out_of_scope | benefits_enrollment_policy.md (0.6063) |
 | HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.6136) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Supported. Fixed-size chunks ignore section boundaries (19 chunks instead of 36): Hit@1 fell to 93.3% and OOS recall back to 30%, returning to baseline level (61/73).
 
 ## E5: Dense, sentence-window chunks
 
@@ -147,7 +147,7 @@ Chunks: 36 · index build 1.562 s · LLM calls this run: 0
 | HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.622) |
 | HR-061 | ambiguous | What's the approval process? | refuse_out_of_scope | expense_reimbursement_policy.md (0.6811) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Inconclusive: not tested as designed. The policy sections are short enough that 3-sentence windows produced the same 36 chunks as section chunking, so E5 is identical to E2. It needs a longer corpus (or a 1-sentence window) to be a real test.
 
 ## E6: Dense, section + document-title headers
 
@@ -171,7 +171,7 @@ Chunks: 36 · index build 1.67 s · LLM calls this run: 0
 | HR-059 | ambiguous | Am I eligible? | refuse_out_of_scope | benefits_enrollment_policy.md (0.6255) |
 | HR-060 | ambiguous | How do I enroll? | refuse_out_of_scope | benefits_enrollment_policy.md (0.6355) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Not supported; it backfired (60/73, the worst dense variant). Prepending the policy title to every section made any question containing words like 'reimbursement' or 'leave' look like a strong match, so OOS recall fell to 30% and precision to 37.5%. The metadata reintroduced the lexical-overlap problem.
 
 ## E7: Hybrid + cross-encoder rerank
 
@@ -186,7 +186,7 @@ Chunks: 36 · index build 36.196 s · LLM calls this run: 0
 | HR-041 | in_scope | Can I change my benefits elections after having a baby? | refuse_out_of_scope | benefits_enrollment_policy.md (-3.0952) |
 | HR-049 | out_of_scope | Does the company offer tuition reimbursement? | answer | remote_work_policy.md (-2.0828) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Supported, and passes the decision rule: 69/73 (94.5%, +/-0.5%), +10/-2 vs E0 (p=0.04), Hit@1 100%, OOS recall 90% at 75% precision, ambiguous 8/8, adversarial 10/10. Cost: about 1.8 s p95 latency on CPU, versus under 20 ms without reranking.
 
 ## E10: Dense + cross-encoder rerank
 
@@ -201,4 +201,4 @@ Chunks: 36 · index build 3.083 s · LLM calls this run: 0
 | HR-041 | in_scope | Can I change my benefits elections after having a baby? | refuse_out_of_scope | benefits_enrollment_policy.md (-3.0952) |
 | HR-049 | out_of_scope | Does the company offer tuition reimbursement? | answer | remote_work_policy.md (-2.0828) |
 
-*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._
+**Verdict:** Identical to E7 on every item, and faster (1.3 s vs 1.8 s p95): the cross-encoder does all the work and BM25 adds nothing. Caveat: the reranker re-scores the top 20 of only 36 chunks, so first-stage retrieval barely matters at this corpus size; on a large handbook it would. Recommended architecture so far. Remaining failures: 3 answerable questions refused (side business, sharing coworker pay, benefits change after a baby) and 1 out-of-scope question answered (tuition reimbursement).

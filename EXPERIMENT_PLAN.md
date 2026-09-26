@@ -1,6 +1,6 @@
 # Experiment Plan: Which RAG Architecture Actually Works for HR Policy Q&A?
 
-**Owner:** Robert Son · **Status:** Phase 1 complete, Phases 2–5 ready to run
+**Owner:** Robert Son · **Status:** Phases 1–4 complete (E0–E7, E10); Phase 5 ready to run
 **Companion repos:** [HR-Policy-QA-Bot](https://github.com/robertciceroson/HR-Policy-QA-Bot) (the product) ·
 [hr-policy-eval-harness](https://github.com/robertciceroson/hr-policy-eval-harness) (the golden dataset and baseline)
 
@@ -103,26 +103,35 @@ finding: record it honestly in `results/RESULTS.md`.
 | **E6** | Dense, doc title prepended to each section | p.146 | Cheapest fix for cross-document confusion |
 | **E7** | Hybrid + cross-encoder rerank | p.126 | Best Hit@1 and best non-LLM scope gate |
 | **E8** | HyDE (Llama 3.3 70B) + dense | p.131 | Helps vague questions, **hurts** OOS: the LLM invents a plausible "dress code policy" that then matches real text |
-| **E9** | Hybrid + LLM scope gate | p.128 | Lifts OOS recall to 80%+ with no false refusals: tests the harness's own recommendation |
+| **E9** | Dense + LLM scope gate | p.128 | Lifts OOS recall to 80%+ with no false refusals: tests the harness's own recommendation |
+| **E10** | Dense + cross-encoder rerank | p.126 | *Added after Phase 4 (ablation):* if E10 ≈ E7, BM25 adds nothing |
+| **E11** | Dense + rerank + LLM scope gate | p.128 | *Added after Phase 4:* the gate lets calibration loosen the reranker threshold, recovering false refusals and catching "tuition reimbursement" |
+
+**Changes made after seeing results (documented, not hidden):** E9 was
+rebased from hybrid to dense after E3 (hybrid) lost to E2 (dense) in Phase 2.
+E10 and E11 were added after Phase 4. E7's pre-registered hypothesis was left
+unchanged. Post-hoc experiments are labeled as such and should be read as
+exploratory, not confirmatory.
 
 **Stretch (not scaffolded):** agentic RAG with query rewriting and retry (p.128),
 and generation-quality scoring with an LLM-backed generator plus G-Eval
 (p.332). Add these only after E0–E9 are written up.
 
-## 5. Results so far (Phase 1, run 2026-09-26)
+## 5. Results so far (Phases 1–4, run 2026-09-26)
 
-| ID | CV accuracy | In-sample | OOS recall | Doc Hit@1 |
-|---|---|---|---|---|
-| E0 fixed params | 64/73 (87.7%) | — | 30% | 95.6% |
-| **E0 cv** | **61/73 (83.6%) ± 1.3%** | 87.7% | 30% | 95.6% |
-| E1 BM25 | 57/73 (78.1%) ± 1.6% | 83.6% | 30% | 95.6% |
+| ID | Experiment | CV accuracy | vs E0 | OOS recall / precision | Verdict |
+|---|---|---|---|---|---|
+| E0 | TF-IDF (control) | 61/73 (83.6%) | — | 30% / 50% | Reproduces 64/73 with original params |
+| E1 | BM25 | 57/73 (78.1%) | +3/−7, p=0.34 | 30% / 33% | No measurable difference |
+| E2 | Dense | 65/73 (89.0%) | +10/−6, p=0.45 | 80% / 62% | Mixed: ambiguity handling fell to 4/8 |
+| E3 | Hybrid RRF | 64/73 (87.7%) | +7/−4, p=0.55 | 50% / 62% | Not supported |
+| E4 | Dense, fixed chunks | 61/73 (83.6%) | +7/−7, p=1.00 | 30% / 43% | Supported (structure matters) |
+| E5 | Dense, sentence windows | 65/73 (89.0%) | +10/−6, p=0.45 | 80% / 62% | Inconclusive (same chunks as E2) |
+| E6 | Dense, title headers | 60/73 (82.2%) | +8/−9, p=1.00 | 30% / 38% | Not supported: backfired |
+| E7 | Hybrid + rerank | **69/73 (94.5%)** | **+10/−2, p=0.04** | **90% / 75%** | **Supported; passes decision rule** |
+| E10 | Dense + rerank | **69/73 (94.5%)** | **+10/−2, p=0.04** | **90% / 75%** | **Same as E7; simpler → recommended** |
 
-**Finding 1:** the published 87.7% was partly a product of tuning the
-threshold on the test set. The honest baseline is **83.6%**, and that is
-the number every later experiment has to beat.
-**Finding 2:** BM25 behaved as hypothesized. Ranking was identical
-(Hit@1 95.6%), but its unbounded scores made the gates worse (−4 items:
-2 in-scope and 2 ambiguous items lost).
+Full verdicts live in `configs/experiments.yaml` and render into `results/RESULTS.md`.
 
 ## 6. Run plan
 
@@ -150,6 +159,8 @@ comparison runs on the best retriever.
 - **Ambiguity patterns are dataset-aware.** The 8 regexes in `guardrails.py` were written alongside the ambiguous test items, so 8/8 ambiguous is partly in-sample by construction. It stays constant across experiments, so comparisons remain fair, but don't claim it as a general ambiguity-detection result.
 - **Synthetic corpus.** Six short, clean markdown policies. Real handbooks (long PDFs, tables, amendments) would stress chunking far more, so E4–E6 likely *understate* chunking effects.
 - **Document-level scoring.** A pass means the right *document* ranked first. It doesn't prove the right *section* was found or that an LLM would phrase the answer correctly (see the stretch goal).
+- **Degenerate experiment.** E5's sentence windows reproduced the section chunks exactly (36 = 36), so it tested nothing; it is reported as inconclusive.
+- **Reranker candidate depth vs. corpus size.** The reranker re-scores 20 of 36 chunks, so "BM25 adds nothing" (E7 = E10) is a small-corpus result.
 - **LLM nondeterminism.** Temperature is 0 and every completion is cached and committed, so E8 and E9 reproduce exactly from the cache.
 
 ## 8. Deliverables

@@ -29,7 +29,9 @@ design, hypotheses, and decision rules are in **[EXPERIMENT_PLAN.md](EXPERIMENT_
 | E6 | Dense, section chunks with document-title headers |
 | E7 | Hybrid + cross-encoder reranker |
 | E8 | HyDE (LLM-generated hypothetical answer) + dense |
-| E9 | Hybrid + LLM scope gate |
+| E9 | Dense + LLM scope gate |
+| E10 | Dense + cross-encoder reranker (ablation of E7: is BM25 needed?) |
+| E11 | Dense + reranker + LLM scope gate |
 
 ## How it's kept fair
 
@@ -40,14 +42,23 @@ design, hypotheses, and decision rules are in **[EXPERIMENT_PLAN.md](EXPERIMENT_
 
 ## Findings so far
 
-| | Result |
-|---|---|
-| Baseline, original hand-tuned thresholds | 64/73 (87.7%): reproduces the published score |
-| **Baseline, honest cross-validated calibration** | **61/73 (83.6%) ± 1.3%**: the real number to beat |
-| BM25 | 57/73 (78.1%): same ranking, worse gating (hypothesis supported) |
-| E2–E9 | *Pending: see [EXPERIMENT_PLAN.md §6](EXPERIMENT_PLAN.md)* |
+Phases 1–4 complete (E0–E7, E10). Phase 5 (LLM-assisted: E8, E9, E11) pending.
 
-Full table and per-item failures: [`results/RESULTS.md`](results/RESULTS.md).
+| | CV accuracy | vs honest baseline | Out-of-scope recall / precision | Latency p95 (CPU) |
+|---|---|---|---|---|
+| Baseline as published (tuned on test set) | 64/73 (87.7%) | — | 30% / — | <1 ms |
+| **Baseline, honest (cross-validated)** | **61/73 (83.6%)** | — | 30% / 50% | <1 ms |
+| Dense embeddings (E2) | 65/73 (89.0%) | +10/−6, p = 0.45 (n.s.) | 80% / 62% | 18 ms |
+| **Dense + cross-encoder rerank (E10)** | **69/73 (94.5%)** | **+10/−2, p = 0.04** | **90% / 75%** | 1.3 s |
+
+1. **The published 87.7% was optimistic.** Its threshold was tuned on the same 73 items it was scored on. Honest cross-validated calibration puts the baseline at 83.6%, and that is the number every experiment is judged against.
+2. **Reranking is the only change that passes the pre-registered decision rule.** A cross-encoder over dense retrieval reaches 94.5% (±0.5% across 10 CV repeats), finds the right policy for every answerable question, and triples out-of-scope detection. The price is about 1.3 s per question on CPU: fine for an HR helpdesk, too slow for autocomplete.
+3. **BM25 adds nothing once you rerank.** Hybrid + rerank (E7) and dense + rerank (E10) fail on exactly the same items, so the simpler pipeline wins. Caveat: the reranker sees 20 of only 36 chunks here, so first-stage retrieval would matter more on a large handbook.
+4. **Dense retrieval alone traded one failure for another.** It fixed both of the harness's documented retrieval misses and raised out-of-scope recall to 80%, but vague questions ("Am I eligible?") started getting refused as out-of-scope. Net gain not significant.
+5. **Two popular "improvements" hurt.** Hybrid fusion brought back a keyword-overlap miss (E3), and prepending document titles to chunks, often recommended as "contextual headers", dropped out-of-scope recall back to 30% (E6).
+6. **One experiment didn't really run.** Sentence-window chunking (E5) produced the same 36 chunks as section chunking because the policy sections are short; it's reported as inconclusive, not as "no effect."
+
+Full table, per-item failures, and every verdict: [`results/RESULTS.md`](results/RESULTS.md).
 
 ## Run it
 

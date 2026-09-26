@@ -52,9 +52,15 @@ def main():
         exps = yaml.safe_load(f)["experiments"]
     if args.only:
         wanted = set(args.only.split(","))
+        unknown = wanted - {e["id"] for e in exps}
+        if unknown:
+            print(f"WARNING: not in configs/experiments.yaml: {', '.join(sorted(unknown))} "
+                  f"(is your config up to date?)")
         exps = [e for e in exps if e["id"] in wanted]
     if args.phase:
         exps = [e for e in exps if e["phase"] == args.phase]
+    if not exps:
+        print("Nothing to run.")
 
     llm = None
     for exp in exps:

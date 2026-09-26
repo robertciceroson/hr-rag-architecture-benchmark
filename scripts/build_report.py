@@ -1,6 +1,9 @@
 """
 Build results/RESULTS.md from every results/runs/*.json.
 
+Verdicts live in configs/experiments.yaml (`verdict:` per experiment), NOT in
+RESULTS.md, because this script regenerates RESULTS.md from scratch every run.
+
 Headline metric = cross-validated accuracy (see calibration.py for why).
 Each experiment also gets an exact McNemar test against E0 on the same
 73 items, so small differences aren't over-claimed.
@@ -9,6 +12,8 @@ import glob
 import json
 import os
 import sys
+
+import yaml
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
@@ -27,6 +32,9 @@ def main():
     if not runs:
         sys.exit("No runs found. Run scripts/run_experiments.py first.")
     order = sorted(runs, key=lambda k: int(k[1:]))
+    with open(os.path.join(ROOT, "configs", "experiments.yaml"), encoding="utf-8") as f:
+        verdicts = {e["id"]: e.get("verdict", "").strip()
+                    for e in yaml.safe_load(f)["experiments"]}
     base = runs.get("E0")
 
     L = ["# Results\n",
@@ -62,8 +70,10 @@ def main():
               f"(published: 64/73)."]
 
     L += ["", "`vs E0` = items this experiment fixed / items it broke relative to the "
-          "baseline, with an exact McNemar p-value. With 73 items, treat p > 0.05 as "
-          "\"not distinguishable from the baseline\", however good the headline looks.", ""]
+          "baseline, with an exact McNemar p-value. Decision rule (EXPERIMENT_PLAN.md): a real "
+          "improvement needs >= 3 items gained, p < 0.10, adversarial still 10/10, and OOS "
+          "precision no worse than the baseline. Anything else is reported as no measurable "
+          "difference, however good the headline looks.", ""]
 
     for k in order:
         r = runs[k]
@@ -76,7 +86,8 @@ def main():
                 q = f["question"].replace("|", "\\|")
                 L.append(f"| {f['id']} | {f['case_type']} | {q} | {f['action']} "
                          f"| {f['top_doc']} ({f['top_conf']}) |")
-        L += ["", "*Verdict:* _TODO - supported / not supported, and why (1-3 sentences)._", ""]
+        v = verdicts.get(k) or "_Pending: add a `verdict:` to this experiment in configs/experiments.yaml._"
+        L += ["", f"**Verdict:** {v}", ""]
 
     out = os.path.join(ROOT, "results", "RESULTS.md")
     with open(out, "w", encoding="utf-8") as f:

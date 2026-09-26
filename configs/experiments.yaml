@@ -19,6 +19,12 @@ experiments:
     retriever: {type: tfidf}
     fixed_params: {oos_threshold: 0.10, amb_margin: 0.02, amb_min_conf: 0.20}
     requires: []
+    verdict: >
+      Reproduced exactly: 64/73 with the original hand-tuned thresholds.
+      Under cross-validated calibration the honest baseline is 61/73
+      (83.6%, +/-1.3%), so about 3 points of the published 87.7% came from
+      tuning the threshold on the same items it was scored on.
+
 
   - id: E1
     name: "BM25, section chunks"
@@ -33,6 +39,12 @@ experiments:
     requires: [rank_bm25]
 
   # ---------------- Phase 2: semantic retrieval (downloads a ~130MB model once)
+    verdict: >
+      Partly supported. Ranking was identical to TF-IDF (Hit@1 95.6%) and
+      gating was worse (2 in-scope and 2 ambiguous items lost; OOS
+      precision 33%), but +3/-7 vs E0 is not significant (p=0.34), so this
+      is reported as no measurable difference.
+
   - id: E2
     name: "Dense (bge-small), section chunks"
     phase: 2
@@ -46,6 +58,15 @@ experiments:
     chunking: {strategy: section}
     retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
     requires: [fastembed]
+    verdict: >
+      Mixed; does not pass the decision rule (+10/-6 vs E0, p=0.45). Fixed
+      both documented retrieval misses ('calling in sick', 'leave the
+      company') and raised OOS recall from 30% to 80%, but ambiguous
+      handling fell from 8/8 to 4/8: short, vague questions ('Am I
+      eligible?') score low on dense similarity and are refused as out-of-
+      scope before the ambiguity check runs. It traded one failure type
+      for another.
+
 
   - id: E3
     name: "Hybrid RRF (BM25 + dense), section chunks"
@@ -67,6 +88,12 @@ experiments:
 
   # ---------------- Phase 3: chunking (hold retriever fixed at dense;
   # switch to the Phase 2 winner if that's E3)
+    verdict: >
+      Not supported. Ranking matched E2, but OOS recall fell to 50% and
+      the 'calling in sick' lexical miss came back: fusing BM25 in
+      reintroduces the keyword overlap that dense retrieval had filtered
+      out. Not significant vs E0 (p=0.55).
+
   - id: E4
     name: "Dense, fixed 120-word chunks"
     phase: 3
@@ -78,6 +105,11 @@ experiments:
     chunking: {strategy: fixed, params: {size: 120, overlap: 30}}
     retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
     requires: [fastembed]
+    verdict: >
+      Supported. Fixed-size chunks ignore section boundaries (19 chunks
+      instead of 36): Hit@1 fell to 93.3% and OOS recall back to 30%,
+      returning to baseline level (61/73).
+
 
   - id: E5
     name: "Dense, sentence-window chunks"
@@ -90,6 +122,12 @@ experiments:
     chunking: {strategy: sentence_window, params: {window: 3, stride: 2}}
     retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
     requires: [fastembed]
+    verdict: >
+      Inconclusive: not tested as designed. The policy sections are short
+      enough that 3-sentence windows produced the same 36 chunks as
+      section chunking, so E5 is identical to E2. It needs a longer corpus
+      (or a 1-sentence window) to be a real test.
+
 
   - id: E6
     name: "Dense, section + document-title headers"
@@ -104,6 +142,13 @@ experiments:
     requires: [fastembed]
 
   # ---------------- Phase 4: reranking
+    verdict: >
+      Not supported; it backfired (60/73, the worst dense variant).
+      Prepending the policy title to every section made any question
+      containing words like 'reimbursement' or 'leave' look like a strong
+      match, so OOS recall fell to 30% and precision to 37.5%. The
+      metadata reintroduced the lexical-overlap problem.
+
   - id: E7
     name: "Hybrid + cross-encoder rerank"
     phase: 4
@@ -123,6 +168,12 @@ experiments:
           - {type: bm25}
           - {type: dense, model: "BAAI/bge-small-en-v1.5"}
     requires: [rank_bm25, fastembed]
+    verdict: >
+      Supported, and passes the decision rule: 69/73 (94.5%, +/-0.5%),
+      +10/-2 vs E0 (p=0.04), Hit@1 100%, OOS recall 90% at 75% precision,
+      ambiguous 8/8, adversarial 10/10. Cost: about 1.8 s p95 latency on
+      CPU, versus under 20 ms without reranking.
+
 
   - id: E10
     name: "Dense + cross-encoder rerank"
@@ -141,6 +192,16 @@ experiments:
     requires: [fastembed]
 
   # ---------------- Phase 5: LLM-assisted (needs GROQ_API_KEY; ~75-150 calls, cached)
+    verdict: >
+      Identical to E7 on every item, and faster (1.3 s vs 1.8 s p95): the
+      cross-encoder does all the work and BM25 adds nothing. Caveat: the
+      reranker re-scores the top 20 of only 36 chunks, so first-stage
+      retrieval barely matters at this corpus size; on a large handbook it
+      would. Recommended architecture so far. Remaining failures: 3
+      answerable questions refused (side business, sharing coworker pay,
+      benefits change after a baby) and 1 out-of-scope question answered
+      (tuition reimbursement).
+
   - id: E8
     name: "HyDE (Llama 3.3 70B) + dense"
     phase: 5
@@ -167,5 +228,24 @@ experiments:
       Phase 2: E3 hybrid lost to E2.)
     chunking: {strategy: section}
     retriever: {type: dense, model: "BAAI/bge-small-en-v1.5"}
+    llm_scope_gate: true
+    requires: [fastembed, groq, GROQ_API_KEY]
+
+  - id: E11
+    name: "Dense + rerank + LLM scope gate"
+    phase: 5
+    compare_to: E10
+    book_ref: "RAG vs Agentic RAG (p.128); original harness recommendation"
+    hypothesis: >
+      Added after Phase 4. An LLM gate can only add refusals, so it belongs on
+      top of the best retriever (E10), not plain dense. With the LLM catching
+      out-of-scope questions, calibration can loosen the reranker's threshold:
+      expect it to recover some of E10's 3 false refusals and to catch
+      'tuition reimbursement', at the cost of one LLM call per question.
+    chunking: {strategy: section}
+    retriever:
+      type: rerank
+      model: "Xenova/ms-marco-MiniLM-L-6-v2"
+      base: {type: dense, model: "BAAI/bge-small-en-v1.5"}
     llm_scope_gate: true
     requires: [fastembed, groq, GROQ_API_KEY]
